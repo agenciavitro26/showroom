@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivi Connect Lingerie | Coleção Exclusiva</title>
+    <title>Vivi Connect | Lingerie & Sex Shop</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -13,10 +13,10 @@
                 extend: {
                     colors: {
                         brand: {
-                            light: '#fce7f3', 
-                            DEFAULT: '#d946ef', 
-                            dark: '#86198f', 
-                            accent: '#fdf2f8'
+                            light: '#fde3fc', // Cor solicitada (Fundo leve)
+                            DEFAULT: '#d946ef', // Magenta vibrante (Botões)
+                            dark: '#86198f', // Texto forte
+                            hover: '#c026d3' // Hover do botão
                         }
                     },
                     fontFamily: {
@@ -34,64 +34,118 @@
 
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="font-sans text-gray-800 pb-24">
+<body class="font-sans text-gray-800 pb-24 bg-brand-light/30">
+
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 z-[60] hidden transition-opacity opacity-0"></div>
+    <div id="mobile-menu-drawer" class="fixed top-0 left-0 w-[80%] max-w-[300px] h-full bg-white z-[70] transform -translate-x-full transition-transform duration-300 shadow-2xl flex flex-col">
+        <div class="p-5 flex justify-between items-center border-b">
+            <h2 class="font-serif text-xl font-bold text-brand-dark">Menu</h2>
+            <button id="close-menu" class="text-gray-500 hover:text-brand-DEFAULT"><i data-lucide="x"></i></button>
+        </div>
+        <nav class="flex-1 p-5 space-y-4">
+            <a href="#" class="block text-lg font-medium text-gray-800 hover:text-brand-DEFAULT" onclick="resetView()">Início</a>
+            <div class="border-t my-2"></div>
+            <p class="text-xs uppercase text-gray-400 font-bold tracking-wider mb-2">Categorias</p>
+            <div id="mobile-categories-list" class="space-y-3 pl-2">
+                </div>
+            <div class="border-t my-4"></div>
+            <a href="#" onclick="alert('Página Sobre Nós')" class="block text-gray-600 hover:text-brand-DEFAULT">Sobre Nós</a>
+            <a href="#" onclick="alert('Informações de Entrega via Motoboy/Correios')" class="block text-gray-600 hover:text-brand-DEFAULT">Política de Entrega</a>
+            <a href="https://api.whatsapp.com/send?phone=5511933489947" target="_blank" class="block text-gray-600 hover:text-brand-DEFAULT">Fale Conosco</a>
+        </nav>
+    </div>
 
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            
+            <button id="open-menu" class="lg:hidden text-gray-700 hover:text-brand-DEFAULT">
+                <i data-lucide="menu" class="w-7 h-7"></i>
+            </button>
+
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-DEFAULT shadow-md">
-                    <img src="./assets/logo.png" alt="Vivi Connect Logo" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150/ffc0cb/808080?text=Vivi'">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border-2 border-brand-DEFAULT shadow-md cursor-pointer" onclick="resetView()">
+                    <img src="./assets/logo.png" alt="Vivi Connect Logo" class="w-full h-full object-cover">
                 </div>
-                <div>
-                    <h1 class="font-serif text-xl font-bold text-brand-dark tracking-wide">Vivi Connect</h1>
-                    <p class="text-xs text-gray-500 uppercase tracking-widest">Lingerie & Boutique</p>
+                <div class="hidden sm:block">
+                    <h1 class="font-serif text-xl font-bold text-brand-dark tracking-wide uppercase">Vivi Connect</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Lingerie & Sex Shop</p>
                 </div>
             </div>
-            <div class="flex gap-4 text-brand-dark">
-                <a href="https://www.instagram.com/viviconnectlingerie/" target="_blank" class="hover:text-brand-DEFAULT transition"><i data-lucide="instagram"></i></a>
-                <a href="https://api.whatsapp.com/send/?phone=5511933489947" target="_blank" class="hover:text-brand-DEFAULT transition"><i data-lucide="message-circle"></i></a>
+
+            <div class="flex gap-3 items-center">
+                <div class="hidden md:flex gap-3 text-brand-dark mr-4">
+                    <a href="https://www.instagram.com/viviconnectlingerie/" target="_blank" class="hover:scale-110 transition"><i data-lucide="instagram"></i></a>
+                    <a href="https://www.facebook.com/viviconnectlingerie/" target="_blank" class="hover:scale-110 transition w-6 h-6 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.791-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="https://api.whatsapp.com/send?phone=5511933489947" target="_blank" class="hover:scale-110 transition w-6 h-6 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-8.68-2.031-.967-.272-.099-.47-.149-.669.198-.198.347-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    </a>
+                </div>
+                
+                <div class="relative cursor-pointer text-brand-dark hover:text-brand-DEFAULT transition" onclick="toggleCart()">
+                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-brand-DEFAULT text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full opacity-0 transition-opacity">0</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <section class="relative w-full h-[50vh] min-h-[400px] bg-black flex items-center justify-center overflow-hidden">
+    <section id="hero-section" class="relative w-full h-[40vh] min-h-[300px] bg-black flex items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1596472537359-21758e1f573c?q=80&w=2070&auto=format&fit=crop" alt="Background Lingerie" class="absolute inset-0 w-full h-full object-cover opacity-60">
-        <div class="relative z-10 text-center text-white px-4">
-            <span class="block text-sm uppercase tracking-[0.3em] mb-2 text-pink-200">Desde 2022</span>
-            <h2 class="font-serif text-4xl md:text-6xl mb-4 font-medium drop-shadow-lg">Realce sua Beleza</h2>
-            <p class="text-lg md:text-xl font-light text-gray-100 mb-8 max-w-lg mx-auto">Peças exclusivas que unem conforto, sensualidade e elegância para todos os seus momentos.</p>
-            <a href="#vitrine" class="inline-block bg-brand-DEFAULT hover:bg-brand-dark text-white py-3 px-8 rounded-full transition-all duration-300 transform hover:-translate-y-1 shadow-lg border border-white/20 uppercase text-sm tracking-wider">
-                Ver Coleção
-            </a>
+        <div class="relative z-10 text-center text-white px-4 animate-card">
+            <h2 class="font-serif text-3xl md:text-5xl mb-2 font-medium drop-shadow-lg">Sua Beleza em Evidência</h2>
+            <p class="text-sm md:text-lg font-light text-gray-100 mb-6 max-w-lg mx-auto">Lingeries, Pijamas e Acessórios para momentos especiais.</p>
         </div>
     </section>
 
-    <section class="py-8 bg-brand-accent">
+    <section class="sticky top-[72px] z-40 bg-brand-light/95 backdrop-blur-sm shadow-sm py-3 border-b border-brand-DEFAULT/10">
         <div class="container mx-auto px-4">
-            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="categories-container">
+            <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1 pr-4" id="categories-container">
                 </div>
         </div>
     </section>
 
-    <section id="vitrine" class="container mx-auto px-4 py-12">
-        <div class="flex items-end justify-between mb-8">
-            <h3 class="font-serif text-3xl text-gray-900">Destaques</h3>
-            <div class="h-px bg-gray-300 flex-grow ml-6 relative top-[-10px]"></div>
+    <section id="vitrine" class="container mx-auto px-4 py-8 min-h-[60vh]">
+        <div class="flex items-center gap-4 mb-6">
+            <h3 id="section-title" class="font-serif text-2xl md:text-3xl text-brand-dark">Destaques</h3>
+            <div class="h-px bg-brand-dark/20 flex-grow"></div>
         </div>
-        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
             </div>
     </section>
 
-    <div class="fixed bottom-0 left-0 w-full glass-effect z-40 transition-transform duration-500 translate-y-0" id="vitro-bar">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="text-sm">
-                <p class="font-bold text-gray-800">Gostou da apresentação?</p>
-                <p class="text-xs text-gray-600 hidden sm:block">Este é um modelo demonstrativo criado pela Agência Vitrô.</p>
+    <footer class="bg-white border-t border-gray-100 pb-20 pt-10 mt-10">
+        <div class="container mx-auto px-4 text-center">
+            <img src="./assets/logo.png" alt="Logo" class="w-16 h-16 rounded-full mx-auto mb-4 border border-brand-light">
+            <p class="text-sm text-gray-500 mb-4">Entregas discretas e combinadas via WhatsApp.</p>
+            <p class="text-xs text-gray-400">© 2026 Vivi Connect - Gerenciado por <span class="font-bold text-brand-dark">Agência Vitrô</span></p>
+        </div>
+    </footer>
+
+    <div id="cart-modal" class="fixed inset-0 bg-black/50 z-[80] hidden items-end sm:items-center justify-center">
+        <div class="bg-white w-full sm:w-[400px] h-[80vh] sm:h-auto sm:rounded-xl shadow-2xl flex flex-col animate-slideUp sm:animate-fadeIn">
+            <div class="p-4 bg-brand-DEFAULT text-white flex justify-between items-center sm:rounded-t-xl">
+                <h3 class="font-serif text-lg font-bold flex items-center gap-2"><i data-lucide="shopping-bag" class="w-5 h-5"></i> Sua Sacola</h3>
+                <button onclick="toggleCart()" class="hover:bg-white/20 p-1 rounded"><i data-lucide="x"></i></button>
             </div>
-            <button onclick="alert('Funcionalidade de exemplo Vitrô')" class="bg-gray-900 hover:bg-black text-white px-4 py-2 rounded text-xs sm:text-sm font-medium transition shadow-lg flex items-center gap-2">
-                <span>Por que ter um site assim?</span>
-                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-            </button>
+            
+            <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <p class="text-center text-gray-500 mt-10">Sua sacola está vazia.</p>
+            </div>
+
+            <div class="p-4 bg-white border-t">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-600">Total Estimado:</span>
+                    <span id="cart-total" class="font-bold text-brand-dark text-xl">R$ 0,00</span>
+                </div>
+                <button id="btn-checkout" onclick="checkoutWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>Enviar Pedido</span>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                </button>
+                <p class="text-[10px] text-gray-400 text-center mt-2">Pagamento e entrega combinados no chat.</p>
+            </div>
         </div>
     </div>
 
