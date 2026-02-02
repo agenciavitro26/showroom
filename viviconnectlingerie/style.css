@@ -1,0 +1,53 @@
+/* Configurações Globais */
+body {
+    background-color: #fafafa;
+    overflow-x: hidden; /* Evita scroll lateral acidental nas animações */
+}
+
+/* Efeito de Vidro Fosco (Glassmorphism) */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Animação de entrada suave (Fade In Up) */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0; /* Começa invisível */
+}
+
+/* Efeito Cascata (Staggered Animation) */
+.animate-card:nth-child(1) { animation-delay: 0.1s; }
+.animate-card:nth-child(2) { animation-delay: 0.2s; }
+.animate-card:nth-child(3) { animation-delay: 0.3s; }
+.animate-card:nth-child(4) { animation-delay: 0.4s; }
+.animate-card:nth-child(5) { animation-delay: 0.5s; }
+.animate-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Micro-interação: Zoom na imagem ao passar o mouse */
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+/* Utilitário: Esconder barra de rolagem mantendo a funcionalidade */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE e Edge */
+    scrollbar-width: none;  /* Firefox */
+}

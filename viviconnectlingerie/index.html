@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivi Connect Lingerie | Coleção Exclusiva</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            light: '#fce7f3', 
+                            DEFAULT: '#d946ef', 
+                            dark: '#86198f', 
+                            accent: '#fdf2f8'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Lato"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="font-sans text-gray-800 pb-24">
+
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-DEFAULT shadow-md">
+                    <img src="./assets/logo.png" alt="Vivi Connect Logo" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150/ffc0cb/808080?text=Vivi'">
+                </div>
+                <div>
+                    <h1 class="font-serif text-xl font-bold text-brand-dark tracking-wide">Vivi Connect</h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Lingerie & Boutique</p>
+                </div>
+            </div>
+            <div class="flex gap-4 text-brand-dark">
+                <a href="https://www.instagram.com/viviconnectlingerie/" target="_blank" class="hover:text-brand-DEFAULT transition"><i data-lucide="instagram"></i></a>
+                <a href="https://api.whatsapp.com/send/?phone=5511933489947" target="_blank" class="hover:text-brand-DEFAULT transition"><i data-lucide="message-circle"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative w-full h-[50vh] min-h-[400px] bg-black flex items-center justify-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1596472537359-21758e1f573c?q=80&w=2070&auto=format&fit=crop" alt="Background Lingerie" class="absolute inset-0 w-full h-full object-cover opacity-60">
+        <div class="relative z-10 text-center text-white px-4">
+            <span class="block text-sm uppercase tracking-[0.3em] mb-2 text-pink-200">Desde 2022</span>
+            <h2 class="font-serif text-4xl md:text-6xl mb-4 font-medium drop-shadow-lg">Realce sua Beleza</h2>
+            <p class="text-lg md:text-xl font-light text-gray-100 mb-8 max-w-lg mx-auto">Peças exclusivas que unem conforto, sensualidade e elegância para todos os seus momentos.</p>
+            <a href="#vitrine" class="inline-block bg-brand-DEFAULT hover:bg-brand-dark text-white py-3 px-8 rounded-full transition-all duration-300 transform hover:-translate-y-1 shadow-lg border border-white/20 uppercase text-sm tracking-wider">
+                Ver Coleção
+            </a>
+        </div>
+    </section>
+
+    <section class="py-8 bg-brand-accent">
+        <div class="container mx-auto px-4">
+            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2" id="categories-container">
+                </div>
+        </div>
+    </section>
+
+    <section id="vitrine" class="container mx-auto px-4 py-12">
+        <div class="flex items-end justify-between mb-8">
+            <h3 class="font-serif text-3xl text-gray-900">Destaques</h3>
+            <div class="h-px bg-gray-300 flex-grow ml-6 relative top-[-10px]"></div>
+        </div>
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+    </section>
+
+    <div class="fixed bottom-0 left-0 w-full glass-effect z-40 transition-transform duration-500 translate-y-0" id="vitro-bar">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="text-sm">
+                <p class="font-bold text-gray-800">Gostou da apresentação?</p>
+                <p class="text-xs text-gray-600 hidden sm:block">Este é um modelo demonstrativo criado pela Agência Vitrô.</p>
+            </div>
+            <button onclick="alert('Funcionalidade de exemplo Vitrô')" class="bg-gray-900 hover:bg-black text-white px-4 py-2 rounded text-xs sm:text-sm font-medium transition shadow-lg flex items-center gap-2">
+                <span>Por que ter um site assim?</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
