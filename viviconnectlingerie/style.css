@@ -1,18 +1,18 @@
-/* Configurações Globais */
-body {
-    /* Fundo levemente rosado como pedido via Tailwind bg-brand-light/30 */
-    overflow-x: hidden;
+/* Rolagem suave em toda a página */
+html {
+    scroll-behavior: smooth;
 }
 
-/* Glassmorphism Refinado */
-.glass-effect {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(255, 255, 255, 0.5);
+/* Impede seleção de texto */
+.no-select, img, button, a {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* Scrollbar invisível mas funcional */
+/* Utilitário para esconder scrollbar mantendo funcionalidade */
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
@@ -21,9 +21,9 @@ body {
     scrollbar-width: none;
 }
 
-/* Animações de Entrada */
+/* Animações Keyframes */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -37,9 +37,15 @@ body {
     to { opacity: 1; }
 }
 
-.animate-card {
-    animation: fadeInUp 0.5s ease-out forwards;
-    opacity: 0;
+@keyframes popIn {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Classes utilitárias de animação */
+.animate-fadeInUp {
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 .animate-slideUp {
@@ -50,15 +56,33 @@ body {
     animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* Stagger Animation (Cascata) */
-.animate-card:nth-child(1) { animation-delay: 0.1s; }
-.animate-card:nth-child(2) { animation-delay: 0.15s; }
-.animate-card:nth-child(3) { animation-delay: 0.2s; }
-.animate-card:nth-child(4) { animation-delay: 0.25s; }
-.animate-card:nth-child(5) { animation-delay: 0.3s; }
-.animate-card:nth-child(6) { animation-delay: 0.35s; }
+.pop-in {
+    animation: popIn 0.3s ease-out forwards;
+}
 
-/* Product Card Hover */
+/* Efeitos do Card de Produto */
+.product-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.product-card:active {
+    transform: scale(0.98);
+}
+
 .product-card:hover .product-img {
     transform: scale(1.05);
+}
+
+/* Indicadores do Carrossel (Bolinhas) */
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.carousel-dot.active {
+    background-color: #d946ef; /* Magenta */
+    transform: scale(1.2);
 }
