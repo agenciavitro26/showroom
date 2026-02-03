@@ -1,181 +1,56 @@
+// --- CONFIGURAÇÃO DA API ---
+// Cole a URL que você gerou no Google Apps Script aqui:
+const API_URL = "https://script.google.com/macros/s/AKfycbyYScmcVqt1XzeRjX_fF4TKDGlZIW8sH0pV1sr0foK8VDpt9wkVtrVbZ8FkcbR1maw/exec"; 
+
 // Inicializa ícones do Lucide
 lucide.createIcons();
 
-// --- 1. BASE DE DADOS COMPLETA (21 PRODUTOS) ---
-const mockProducts = [
-    { 
-        id: 1, 
-        name: "Calcinha Conforto", 
-        price: 16.00, 
-        category: "Calcinhas", 
-        desc: "Você merece conforto o dia inteiro sem abrir mão da beleza! Nossas calcinhas sem costura são perfeitas para o dia a dia, com toque macio e caimento impecável. Disponível do P ao GG. Cores: Preto, vermelho, branco, verde menta, rosê, pink, roxo, coral.",
-        images: ["./assets/produto-1-a.jpg", "./assets/produto-1-b.jpg"] 
-    },
-    { 
-        id: 2, 
-        name: "Calcinha Fio Corações", 
-        price: 16.00, 
-        category: "Calcinhas", 
-        desc: "Um modelo mais lindo que o outro! Calcinha estilo fio, com detalhes em corações e cores vibrantes que são puro charme. Conforto, estilo e delicadeza em uma peça só.",
-        images: ["./assets/produto-2-a.jpg", "./assets/produto-2-b.jpg"] 
-    },
-    { 
-        id: 3, 
-        name: "Sutiã Conjunto Brilho", 
-        price: 69.99, 
-        category: "Conjuntos", 
-        desc: "Conjunto sofisticado com detalhe de brilho na lateral e na alça. Disponível do P ao GG.",
-        images: ["./assets/produto-3-a.jpg", "./assets/produto-3-b.jpg"] 
-    },
-    { 
-        id: 4, 
-        name: "Conjunto Lindo com Renda", 
-        price: 59.99, 
-        category: "Conjuntos", 
-        desc: "Lindo conjunto trabalhado com renda delicada. Disponível do P ao GG.",
-        images: ["./assets/produto-4-a.jpg", "./assets/produto-4-b.jpg"] 
-    },
-    { 
-        id: 5, 
-        name: "Body Elegante em Renda", 
-        price: 70.00, 
-        category: "Body", 
-        desc: "Body elegante em renda super sexy. Valoriza o corpo e traz sensualidade.",
-        images: ["./assets/produto-5-a.jpg", "./assets/produto-5-b.jpg"] 
-    },
-    { 
-        id: 6, 
-        name: "Conjunto Espera Marido", 
-        price: 20.00, 
-        category: "Camisolas", 
-        desc: "Baby Doll sensual estilo 'Espera Marido'. Perfeito para momentos especiais.",
-        images: ["./assets/produto-6-a.jpg", "./assets/produto-6-b.jpg"] 
-    },
-    { 
-        id: 7, 
-        name: "Conjunto Lingerie Night Up", 
-        price: 60.00, 
-        category: "Conjuntos", 
-        desc: "Conjunto Lingerie Night Up Sexy. Disponível do P ao GG.",
-        images: ["./assets/produto-7-a.jpg", "./assets/produto-7-b.jpg"] 
-    },
-    { 
-        id: 8, 
-        name: "Xana Louca Bisnaga", 
-        price: 16.00, 
-        category: "Sex Shop", 
-        desc: "Gel excitante Xana Louca (Bisnaga). Sensações de aquecimento e vibração.",
-        images: ["./assets/produto-8-a.jpg", "./assets/produto-8-b.jpg"] 
-    },
-    { 
-        id: 9, 
-        name: "Baby Doll Lunar Renda Bicolor", 
-        price: 65.00, 
-        category: "Camisolas", 
-        desc: "Baby Doll Lunar em Renda luxuosa Bicolor. Disponível do P ao GG.",
-        images: ["./assets/produto-9-a.jpg", "./assets/produto-9-b.jpg"] 
-    },
-    { 
-        id: 10, 
-        name: "Lubrificante Love Lub", 
-        price: 18.00, 
-        category: "Sex Shop", 
-        desc: "Lubrificante Love Lub à base de água. Conforto e prazer.",
-        images: ["./assets/produto-10-a.jpg", "./assets/produto-10-b.jpg"] 
-    },
-    { 
-        id: 11, 
-        name: "Pijama Americano Estampado", 
-        price: 95.00, 
-        category: "Pijamas", 
-        desc: "Pijama Americano estampado, unindo conforto e estilo para suas noites.",
-        images: ["./assets/produto-11-a.jpg", "./assets/produto-11-b.jpg"] 
-    },
-    { 
-        id: 12, 
-        name: "Vibrador Ponto G", 
-        price: 22.00, 
-        category: "Sex Shop", 
-        desc: "Vibrador desenhado especificamente para estimulação do Ponto G.",
-        images: ["./assets/produto-12-a.jpg", "./assets/produto-12-b.jpg"] 
-    },
-    { 
-        id: 13, 
-        name: "Estimulador Masculino EGG", 
-        price: 24.00, 
-        category: "Sex Shop", 
-        desc: "Masturbador masculino EGG. Textura interna surpreendente.",
-        images: ["./assets/produto-13-a.jpg", "./assets/produto-13-b.jpg"] 
-    },
-    { 
-        id: 14, 
-        name: "Camisola Americana Botões", 
-        price: 95.00, 
-        category: "Camisolas", 
-        desc: "Camisola Americana com fecho frontal de botões. Prática e elegante.",
-        images: ["./assets/produto-14-a.jpg", "./assets/produto-14-b.jpg"] 
-    },
-    { 
-        id: 15, 
-        name: "Pijama Conforto Infantil (Masc)", 
-        price: 60.00, 
-        category: "Infantil", 
-        desc: "Pijama Conforto masculino infantil. Praticidade e estilo para as noites dos pequenos.",
-        images: ["./assets/produto-15-a.jpg", "./assets/produto-15-b.jpg"] 
-    },
-    { 
-        id: 16, 
-        name: "Baby Doll Conforto Infantil", 
-        price: 55.00, 
-        category: "Infantil", 
-        desc: "Baby Doll conforto Infantil com estampas de personagens.",
-        images: ["./assets/produto-16-a.jpg", "./assets/produto-16-b.jpg"] 
-    },
-    { 
-        id: 17, 
-        name: "Baby Doll de Liganete", 
-        price: 23.00, 
-        category: "Camisolas", 
-        desc: "Baby Doll de Liganete, tecido fresquinho e confortável.",
-        images: ["./assets/produto-17-a.jpg", "./assets/produto-17-b.jpg"] 
-    },
-    { 
-        id: 18, 
-        name: "Pijama Virgínia", 
-        price: 30.00, 
-        category: "Pijamas", 
-        desc: "Pijama Virgínia super confortável. Disponível do P ao GG.",
-        images: ["./assets/produto-18-a.jpg", "./assets/produto-18-b.jpg"] 
-    },
-    { 
-        id: 19, 
-        name: "Camisola Sensual Renda", 
-        price: 60.00, 
-        category: "Camisolas", 
-        desc: "Nossa camisola é aquele toque de conforto com sensualidade que você merece. Leve, charmosa e com renda que valoriza o corpo. Disponível do P ao XG. Cores: rosa, branca, preta e azul.",
-        images: ["./assets/produto-19-a.jpg", "./assets/produto-19-b.jpg"] 
-    },
-    { 
-        id: 20, 
-        name: "Conjunto Lingerie Corações", 
-        price: 60.00, 
-        category: "Conjuntos", 
-        desc: "Puro charme e delicadeza para você se sentir ainda mais linda e confiante.",
-        images: ["./assets/produto-20-a.jpg", "./assets/produto-20-b.jpg"] 
-    },
-    { 
-        id: 21, 
-        name: "Lingerie Valoriza Beleza", 
-        price: 70.00, 
-        category: "Conjuntos", 
-        desc: "Disponível nas cores branco e vermelho. Com renda delicada, alças ajustáveis e um caimento incrível.",
-        images: ["./assets/produto-21-a.jpg", "./assets/produto-21-b.jpg"] 
-    }
-];
-
-// CATEGORIAS ATUALIZADAS
+// Estado Global
+let allProducts = [];
 const categories = ["Todos", "Conjuntos", "Sutiãs", "Calcinhas", "Body", "Camisolas", "Pijamas", "Infantil", "Sex Shop"];
 let cart = [];
+
+// --- 1. INICIALIZAÇÃO ---
+document.addEventListener('DOMContentLoaded', () => {
+    initCategories();
+    fetchProducts(); // Busca dados da planilha
+});
+
+// --- FUNÇÃO DE BUSCA (NOVA) ---
+async function fetchProducts() {
+    const grid = document.getElementById('products-grid');
+    
+    // Mostra estado de carregamento
+    grid.innerHTML = `
+        <div class="col-span-full flex flex-col items-center justify-center py-20 text-brand-DEFAULT">
+            <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-4"></i>
+            <p class="animate-pulse">Carregando coleção...</p>
+        </div>
+    `;
+    lucide.createIcons();
+
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        // Mapeia os dados da API para o formato que o site já usa
+        allProducts = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: typeof item.price === 'string' ? parseFloat(item.price.replace(',','.').replace('R$','').trim()) : item.price,
+            category: item.category,
+            desc: item.description,
+            // O site espera um array de imagens, a API manda uma string única. Adaptamos aqui:
+            images: item.image ? [item.image] : [] 
+        }));
+
+        renderGrid("Todos");
+        
+    } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+        grid.innerHTML = '<div class="col-span-full text-center text-red-500 py-20">Erro ao carregar produtos. Por favor, recarregue a página.</div>';
+    }
+}
 
 // --- 2. LÓGICA DE SCROLL ---
 const floatingControls = document.getElementById('floating-controls');
@@ -185,31 +60,24 @@ let isScrolled = false;
 window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {
         if (!isScrolled) {
-            // Move para baixo (considerando a barra do rodapé)
             floatingControls.style.transform = `translateY(calc(100vh - 180px))`;
-            
             btnMenuAction.innerHTML = '<i data-lucide="arrow-up" class="w-6 h-6"></i>';
             lucide.createIcons();
-            
             btnMenuAction.onclick = () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 btnMenuAction.blur(); 
             };
-            
             isScrolled = true;
         }
     } else {
         if (isScrolled) {
             floatingControls.style.transform = `translateY(0)`;
-            
             btnMenuAction.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
             lucide.createIcons();
-            
             btnMenuAction.onclick = () => {
                 toggleMenu();
                 btnMenuAction.blur();
             };
-            
             isScrolled = false;
         }
     }
@@ -287,7 +155,8 @@ function initCategories() {
 function renderGrid(category) {
     const grid = document.getElementById('products-grid');
     grid.innerHTML = '';
-    const filtered = category === "Todos" ? mockProducts : mockProducts.filter(p => p.category === category);
+    // Usa allProducts (vindo da API) em vez de mockProducts
+    const filtered = category === "Todos" ? allProducts : allProducts.filter(p => p.category === category);
     
     if (filtered.length === 0) {
         grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">Nenhum item encontrado nesta categoria.</p>';
@@ -323,7 +192,7 @@ let currentProduct = null;
 let currentImageIndex = 0;
 
 function openProductModal(id) {
-    const p = mockProducts.find(x => x.id === id);
+    const p = allProducts.find(x => x.id === id); // Busca em allProducts
     if (!p) return;
     currentProduct = p;
     currentImageIndex = 0;
@@ -426,7 +295,6 @@ function toggleCart() {
     if (modal.classList.contains('hidden')) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        // Renderiza e recalcula frete com delay para garantir que DOM está pronto
         setTimeout(() => renderCart(), 50);
     } else {
         modal.classList.add('hidden');
@@ -435,7 +303,7 @@ function toggleCart() {
 }
 
 function addToCart(id) {
-    const prod = mockProducts.find(p => p.id === id);
+    const prod = allProducts.find(p => p.id === id); // Busca em allProducts
     if(prod) {
         cart.push(prod);
         updateCartBadge();
@@ -501,13 +369,12 @@ function renderCart() {
         });
     }
 
-    // CALCULO FRETE (SIMPLIFICADO)
+    // CALCULO FRETE
     const goal = 300;
     const progress = Math.min((total / goal) * 100, 100);
     
     totalEl.innerText = "R$ " + total.toFixed(2).replace('.',',');
 
-    // Aplica Width diretamente
     bar.style.width = `${progress}%`;
     
     if (total >= goal) {
@@ -543,7 +410,3 @@ function checkoutWhatsApp() {
     msg += "\n\nEndereço de Entrega: (Por favor preencher)";
     window.open(`https://api.whatsapp.com/send?phone=5511933489947&text=${encodeURIComponent(msg)}`);
 }
-
-// Inicialização
-initCategories();
-renderGrid("Todos");
