@@ -17,11 +17,16 @@
                             DEFAULT: '#d946ef', 
                             dark: '#86198f', 
                             deep: '#701a75', 
+                        },
+                        vitro: {
+                            dark: '#0f172a',
+                            accent: '#10b981'
                         }
                     },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
-                        sans: ['"Lato"', 'sans-serif'],
+                        // REMOVIDO INTER - USANDO SYSTEM FONTS
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
                     }
                 }
             }
@@ -41,7 +46,7 @@
     <div id="floating-controls" class="fixed top-16 left-0 w-full z-40 px-4 pointer-events-none transition-transform duration-700 ease-in-out will-change-transform">
         <div class="container mx-auto flex justify-between items-start">
             
-            <button id="btn-menu-action" class="pointer-events-auto bg-white/90 backdrop-blur-md text-brand-dark p-3 rounded-full shadow-xl border border-white/50 hover:bg-brand-DEFAULT hover:text-white transition-colors duration-300 group outline-none focus:outline-none tap-highlight-transparent">
+            <button id="btn-menu-action" onclick="toggleMenu()" class="pointer-events-auto bg-white/90 backdrop-blur-md text-brand-dark p-3 rounded-full shadow-xl border border-white/50 hover:bg-brand-DEFAULT hover:text-white transition-colors duration-300 group outline-none focus:outline-none tap-highlight-transparent">
                 <i data-lucide="menu" class="w-6 h-6 group-hover:scale-110 transition-transform duration-300"></i>
             </button>
             
@@ -61,9 +66,9 @@
             <h2 class="font-serif text-xl font-bold text-brand-deep">Vivi Connect</h2>
         </div>
         <nav class="flex-1 p-6 space-y-6 overflow-y-auto">
-            <a href="#" onclick="navigateTo('home')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="home" class="w-5 h-5"></i> Início</a>
-            <a href="#" onclick="navigateTo('about')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="heart" class="w-5 h-5"></i> A Loja</a>
-            <a href="#" onclick="navigateTo('delivery')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="truck" class="w-5 h-5"></i> Entregas & Frete</a>
+            <a href="#" onclick="navigateTo('home'); toggleMenu();" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="home" class="w-5 h-5"></i> Início</a>
+            <a href="#" onclick="navigateTo('about'); toggleMenu();" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="heart" class="w-5 h-5"></i> A Loja</a>
+            <a href="#" onclick="navigateTo('delivery'); toggleMenu();" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="truck" class="w-5 h-5"></i> Entregas & Frete</a>
             <a href="https://api.whatsapp.com/send?phone=5511933489947" target="_blank" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="message-circle" class="w-5 h-5"></i> Fale Conosco</a>
         </nav>
         <div class="p-6 bg-gray-50 text-xs text-gray-400 text-center">
@@ -72,7 +77,6 @@
     </div>
 
     <main id="main-content">
-        
         <div id="page-home">
             <section class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden bg-gray-900">
                 <div class="absolute inset-0">
@@ -86,7 +90,7 @@
                     <h1 class="font-serif text-4xl md:text-6xl text-white font-bold tracking-wide drop-shadow-lg mb-2">VIVI CONNECT</h1>
                     <p class="text-pink-100 uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold bg-black/40 px-4 py-1.5 rounded-full backdrop-blur border border-white/10">Lingerie & Sex Shop</p>
                     
-                    <button onclick="scrollToVitrine()" class="mt-8 animate-bounce text-white opacity-80 hover:opacity-100 transition focus:outline-none">
+                    <button onclick="document.getElementById('vitrine-anchor').scrollIntoView({behavior: 'smooth'})" class="mt-8 animate-bounce text-white opacity-80 hover:opacity-100 transition focus:outline-none">
                         <i data-lucide="chevron-down" class="w-10 h-10"></i>
                     </button>
                 </div>
@@ -96,12 +100,16 @@
                 <div class="container mx-auto max-w-6xl">
                     
                     <div class="mb-10 px-2">
-                        <div class="flex flex-wrap justify-center gap-2" id="categories-container">
+                        <div class="flex flex-wrap justify-center gap-2 mb-4" id="nav-buttons-container">
+                            <button onclick="navigateTo('home')" class="px-5 py-2 rounded-full font-bold text-sm bg-brand-deep text-white shadow-md hover:bg-brand-dark transition transform active:scale-95">Início</button>
+                            <button onclick="navigateTo('about')" class="px-5 py-2 rounded-full font-bold text-sm bg-brand-deep text-white shadow-md hover:bg-brand-dark transition transform active:scale-95">A Loja</button>
+                            <button onclick="navigateTo('delivery')" class="px-5 py-2 rounded-full font-bold text-sm bg-brand-deep text-white shadow-md hover:bg-brand-dark transition transform active:scale-95">Entregas</button>
                         </div>
+                        
+                        <div class="flex flex-wrap justify-center gap-2" id="categories-container"></div>
                     </div>
 
-                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8 transition-opacity duration-300 opacity-100 min-h-[300px]">
-                    </div>
+                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8 transition-opacity duration-300 opacity-100 min-h-[300px]"></div>
                 </div>
             </section>
         </div>
@@ -138,16 +146,18 @@
                 </div>
             </div>
         </div>
-
     </main>
 
-    <div class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 z-[90] py-3 px-4 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] flex justify-between items-center transition-transform duration-300">
-        <div class="text-xs md:text-sm flex flex-col sm:flex-row sm:gap-1">
-            <span class="font-bold text-gray-800">Gostou do site?</span>
-            <span class="text-gray-500">Entenda a Proposta.</span>
+    <div class="fixed bottom-0 left-0 w-full bg-vitro-dark border-t border-gray-700 z-[90] py-2 px-4 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] flex justify-between items-center transition-transform duration-300">
+        <div class="flex items-center gap-4">
+            <div class="vitro-logo" style="font-size: 5px; color: #fff;"></div>
+            <div class="hidden sm:block h-6 w-[1px] bg-gray-700"></div>
+            <span class="text-gray-300 font-bold text-xs sm:text-sm uppercase tracking-wide">
+                Gostou do site?
+            </span>
         </div>
-        <a href="https://verprojeto.com/saibamais" target="_blank" class="bg-gray-900 text-white text-xs font-bold px-5 py-2 rounded-full hover:bg-black transition flex items-center gap-2 shadow-lg">
-            Saiba Mais <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        <a href="https://agenciavitro.com.br/saibamais.html?modelo=loja" target="_blank" class="bg-vitro-accent text-vitro-dark text-xs font-black px-4 py-2 rounded-full hover:bg-white transition flex items-center gap-2 shadow-lg transform active:scale-95 uppercase tracking-wide">
+            Entenda a Proposta <i data-lucide="arrow-right" class="w-3 h-3"></i>
         </a>
     </div>
 
@@ -155,28 +165,20 @@
         <div class="bg-white w-full h-[90vh] sm:h-auto sm:max-h-[85vh] sm:w-[900px] sm:rounded-2xl shadow-2xl flex flex-col sm:flex-row overflow-hidden transform translate-y-full sm:translate-y-0 transition-transform duration-300" id="product-modal-content">
             <div class="w-full sm:w-1/2 h-[50vh] sm:h-[600px] bg-gray-100 relative group">
                 <button onclick="closeProductModal()" class="absolute top-4 left-4 bg-black/20 hover:bg-black/50 text-white p-2 rounded-full sm:hidden z-20"><i data-lucide="chevron-down"></i></button>
-                
                 <img id="modal-img" src="" class="w-full h-full object-cover transition-opacity duration-300 ease-in-out select-none">
-                
                 <button id="prev-slide" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40 text-black p-3 rounded-full backdrop-blur-sm hover:bg-white/80 transition focus:outline-none"><i data-lucide="chevron-left"></i></button>
                 <button id="next-slide" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/40 text-black p-3 rounded-full backdrop-blur-sm hover:bg-white/80 transition focus:outline-none"><i data-lucide="chevron-right"></i></button>
-                
-                <div id="carousel-dots" class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10">
-                </div>
+                <div id="carousel-dots" class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10"></div>
             </div>
-
             <div class="w-full sm:w-1/2 p-6 md:p-10 flex flex-col overflow-y-auto bg-white">
                 <div class="flex justify-between items-start">
                     <span id="modal-cat" class="text-xs font-bold text-brand-DEFAULT uppercase tracking-wider mb-2 block">Categoria</span>
                     <button onclick="closeProductModal()" class="hidden sm:block text-gray-400 hover:text-black focus:outline-none"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                
                 <h2 id="modal-title" class="font-serif text-3xl text-brand-deep font-bold leading-tight mb-4">Nome do Produto</h2>
                 <p id="modal-desc" class="text-gray-600 leading-relaxed mb-6 text-sm">Descrição completa.</p>
-                
                 <div class="mt-auto pt-6 border-t border-gray-100">
                     <p class="text-2xl font-bold text-brand-dark mb-4" id="modal-price">R$ 0,00</p>
-                    
                     <button id="modal-add-btn" style="background-color: #d946ef;" class="w-full text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-200 flex items-center justify-center gap-3 transition-transform active:scale-95 hover:opacity-90 outline-none focus:outline-none">
                         <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                         <span>Adicionar à Sacola</span>
@@ -192,8 +194,7 @@
                 <h3 class="font-serif text-xl font-bold text-brand-deep">Sua Sacola</h3>
                 <button onclick="toggleCart()" class="text-gray-400 hover:text-brand-dark focus:outline-none"><i data-lucide="x"></i></button>
             </div>
-            <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#fcfcfc]">
-            </div>
+            <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#fcfcfc]"></div>
             <div class="p-5 bg-white border-t shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
                 <div class="mb-4">
                     <div class="flex justify-between text-xs mb-1">
@@ -204,7 +205,6 @@
                         <div id="shipping-bar" class="bg-brand-DEFAULT h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
-
                 <div class="flex justify-between items-end mb-4">
                     <span class="text-gray-500 text-sm">Subtotal</span>
                     <span id="cart-total" class="font-serif text-2xl font-bold text-brand-dark">R$ 0,00</span>
@@ -218,5 +218,6 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="../script.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // --- CONFIGURAÇÃO DA API ---
 // Cole a URL que você gerou no Google Apps Script aqui:
-const API_URL = "https://script.google.com/macros/s/AKfycbyYScmcVqt1XzeRjX_fF4TKDGlZIW8sH0pV1sr0foK8VDpt9wkVtrVbZ8FkcbR1maw/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbwy3diO0fWYMeD5_atjYyuqTH-cjLY_2Ytge8Gvuk79trTRPcgY9qnQecx_nfw5do2_/exec"; 
 
 // Inicializa ícones do Lucide
 lucide.createIcons();
@@ -16,11 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchProducts(); // Busca dados da planilha
 });
 
-// --- FUNÇÃO DE BUSCA (NOVA) ---
+// --- FUNÇÃO DE BUSCA (COM CORREÇÃO DE IMAGEM) ---
 async function fetchProducts() {
     const grid = document.getElementById('products-grid');
     
-    // Mostra estado de carregamento
     grid.innerHTML = `
         <div class="col-span-full flex flex-col items-center justify-center py-20 text-brand-DEFAULT">
             <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-4"></i>
@@ -33,22 +32,53 @@ async function fetchProducts() {
         const response = await fetch(API_URL);
         const data = await response.json();
         
-        // Mapeia os dados da API para o formato que o site já usa
-        allProducts = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: typeof item.price === 'string' ? parseFloat(item.price.replace(',','.').replace('R$','').trim()) : item.price,
-            category: item.category,
-            desc: item.description,
-            // O site espera um array de imagens, a API manda uma string única. Adaptamos aqui:
-            images: item.image ? [item.image] : [] 
-        }));
+        allProducts = data.map(item => {
+            // --- TRATAMENTO DE IMAGENS BLINDADO ---
+            let imagesArray = [];
+            
+            if (item.image) {
+                let rawLinks = item.image.includes('||') ? item.image.split('||') : [item.image];
+                
+                imagesArray = rawLinks.map(link => {
+                    link = link.trim();
+                    
+                    // SE FOR VÍDEO (Identificado pelo nosso marcador #VIDEO)
+                    if (link.includes('#VIDEO')) {
+                        return link; // Retorna o link original de download
+                    }
+
+                    // SE FOR FOTO (Google Drive)
+                    if (link.includes('drive.google.com') && !link.includes('export=download')) {
+                        let fileId = "";
+                        if (link.includes('id=')) {
+                            fileId = link.split('id=')[1].split('&')[0];
+                        }
+                        if (fileId) {
+                            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                        }
+                    }
+                    return link;
+                });
+            }
+
+            // Remove itens vazios ou quebrados
+            imagesArray = imagesArray.filter(l => l && l.length > 10);
+
+            return {
+                id: item.id,
+                name: item.name,
+                price: typeof item.price === 'string' ? parseFloat(item.price.replace(',','.').replace('R$','').trim()) : item.price,
+                category: item.category,
+                desc: item.description,
+                images: imagesArray 
+            };
+        });
 
         renderGrid("Todos");
         
     } catch (error) {
         console.error("Erro ao carregar produtos:", error);
-        grid.innerHTML = '<div class="col-span-full text-center text-red-500 py-20">Erro ao carregar produtos. Por favor, recarregue a página.</div>';
+        grid.innerHTML = '<div class="col-span-full text-center text-red-500 py-20">Erro ao carregar produtos.</div>';
     }
 }
 
@@ -165,14 +195,15 @@ function renderGrid(category) {
 
     filtered.forEach(p => {
         const card = document.createElement('div');
-        card.className = "product-card group cursor-pointer";
+        card.className = "product-card group cursor-pointer animate-fadeInUp"; // Adicionei animação de entrada
         card.onclick = () => openProductModal(p.id);
         
         const mainImage = p.images && p.images.length > 0 ? p.images[0] : './assets/logo.png';
 
         card.innerHTML = `
             <div class="relative overflow-hidden rounded-xl aspect-[3/4] bg-gray-100 shadow-sm mb-2">
-                <img src="${mainImage}" class="product-img w-full h-full object-cover transition-transform duration-500 select-none" onerror="this.src='./assets/logo.png'">
+                <img src="${mainImage}" class="product-img w-full h-full object-cover transition-transform duration-500 select-none" 
+                     onerror="this.onerror=null; this.src='./assets/logo.png';">
                 <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/50 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
                     <span class="text-white text-xs font-bold">Ver Detalhes</span>
                 </div>
@@ -222,41 +253,92 @@ function openProductModal(id) {
     }, 10);
 }
 
-function updateCarousel() {
+function updateCarousel(isFirstLoad = false) {
     const imgEl = document.getElementById('modal-img');
+    const wrapper = imgEl.parentElement; // O container pai
+    
     const prevBtn = document.getElementById('prev-slide');
     const nextBtn = document.getElementById('next-slide');
     const dotsContainer = document.getElementById('carousel-dots');
     
     const images = currentProduct.images || [];
-    
-    imgEl.style.opacity = '0';
-    setTimeout(() => {
-        if(images.length > 0) {
-            imgEl.src = images[currentImageIndex];
-        } else {
-            imgEl.src = './assets/logo.png';
-        }
-        imgEl.onerror = function() { this.src = './assets/logo.png'; };
-        imgEl.style.opacity = '1';
-    }, 150);
+    const currentSrc = (images.length > 0) ? images[currentImageIndex] : './assets/logo.png';
+    const isVideo = currentSrc.includes('#VIDEO');
 
-    // Botões sempre visíveis (mas desabilitados se só 1 foto)
+    // 1. Configura Setas e Bolinhas
     if(images.length > 1) {
-        prevBtn.style.display = 'block';
-        nextBtn.style.display = 'block';
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+        // Garante que as setas fiquem SOBRE o vídeo
+        prevBtn.style.zIndex = '50';
+        nextBtn.style.zIndex = '50';
     } else {
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
     }
 
     dotsContainer.innerHTML = '';
+    // Garante que as bolinhas fiquem SOBRE o vídeo
+    dotsContainer.style.zIndex = '50'; 
+    
     if(images.length > 1) {
         images.forEach((_, idx) => {
             const dot = document.createElement('div');
             dot.className = `carousel-dot ${idx === currentImageIndex ? 'active' : ''}`;
             dotsContainer.appendChild(dot);
         });
+    }
+
+    // 2. LIMPEZA DE VÍDEO ANTERIOR
+    // Remove qualquer vídeo que esteja rodando para não pesar ou tocar som
+    const oldVideo = wrapper.querySelector('video');
+    if (oldVideo) oldVideo.remove();
+
+    // 3. RENDERIZAÇÃO
+    if (isVideo) {
+        // --- MODO VÍDEO ---
+        // Esconde a imagem (mas mantém ela lá pra segurar o tamanho do container se precisar)
+        imgEl.style.display = 'none'; 
+        
+        const cleanLink = currentSrc.replace('#VIDEO', '');
+        
+        const videoEl = document.createElement('video');
+        videoEl.src = cleanLink;
+        
+        // REGRAS DE OURO DO AUTOPLAY:
+        videoEl.muted = true;       // Obrigatório para autoplay
+        videoEl.autoplay = true;    // Toca sozinho
+        videoEl.loop = true;        // Repete infinito
+        videoEl.playsInline = true; // Não abre tela cheia no iPhone
+        videoEl.controls = false;   // Remove a barra de controle feia
+        
+        // Estilo: Fica no fundo, cobrindo tudo
+        videoEl.className = "w-full h-full object-contain absolute top-0 left-0 bg-black animate-fadeIn";
+        videoEl.style.zIndex = "0"; // Fica atrás das setas
+        
+        // Adiciona ao container
+        wrapper.appendChild(videoEl);
+        
+        // Força o play (alguns browsers precisam desse empurrãozinho)
+        videoEl.play().catch(e => console.log("Autoplay restrito pelo navegador (interaja com a página primeiro)."));
+
+    } else {
+        // --- MODO FOTO ---
+        imgEl.style.display = 'block'; // Mostra a tag img
+        
+        // Efeito Fade (Lógica que ajustamos antes)
+        imgEl.style.opacity = '0';
+        
+        const tempImg = new Image();
+        tempImg.onload = () => {
+            imgEl.src = currentSrc;
+            setTimeout(() => { imgEl.style.opacity = '1'; }, 50);
+        };
+        tempImg.onerror = () => {
+            imgEl.src = './assets/logo.png';
+            imgEl.style.opacity = '1';
+        };
+        tempImg.src = currentSrc;
     }
 }
 
@@ -369,12 +451,9 @@ function renderCart() {
         });
     }
 
-    // CALCULO FRETE
     const goal = 300;
     const progress = Math.min((total / goal) * 100, 100);
-    
     totalEl.innerText = "R$ " + total.toFixed(2).replace('.',',');
-
     bar.style.width = `${progress}%`;
     
     if (total >= goal) {
@@ -398,15 +477,9 @@ function checkoutWhatsApp() {
         msg += `• ${i.name} - R$ ${i.price.toFixed(2).replace('.',',')}\n`;
         total += i.price;
     });
-    
     msg += `\n*Total Produtos: R$ ${total.toFixed(2).replace('.',',')}*`;
-    
-    if(total >= 300) {
-        msg += "\n*Frete: GRÁTIS* (Compra acima de R$300) 🎉";
-    } else {
-        msg += "\n_Frete a calcular_";
-    }
-    
+    if(total >= 300) msg += "\n*Frete: GRÁTIS* (Compra acima de R$300) 🎉";
+    else msg += "\n_Frete a calcular_";
     msg += "\n\nEndereço de Entrega: (Por favor preencher)";
     window.open(`https://api.whatsapp.com/send?phone=5511933489947&text=${encodeURIComponent(msg)}`);
 }

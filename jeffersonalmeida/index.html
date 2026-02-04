@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Barbearia Jefferson Almeida</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: { DEFAULT: '#cba74f', light: '#e3ca7d', dark: '#a0813c' },
+                        dark: { bg: '#000000', card: '#121212', border: '#333333' },
+                        vitro: {
+                            dark: '#0f172a',
+                            accent: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        // REMOVIDO INTER - USANDO SYSTEM FONTS
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                        display: ['"Oswald"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-dark-bg text-gray-200 font-sans h-screen overflow-hidden flex flex-col no-select">
+
+    <div id="view-home" class="absolute inset-0 z-50 bg-dark-bg overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth pb-0">
+        
+        <div id="section-hero" class="relative h-screen flex items-center justify-center snap-start snap-always" data-index="0">
+            <div class="absolute inset-0 z-0">
+                <div class="hero-image active h-full w-full bg-cover bg-center transition-all duration-[2000ms]" style="background-image: url('./assets/bg1.jpg');"></div>
+                <div class="hero-image h-full w-full bg-cover bg-center absolute inset-0 transition-all duration-[2000ms]" style="background-image: url('./assets/bg2.jpg');"></div>
+                <div class="hero-image h-full w-full bg-cover bg-center absolute inset-0 transition-all duration-[2000ms]" style="background-image: url('./assets/bg3.jpg');"></div>
+            </div>
+            <div class="absolute inset-0 bg-black/40 z-10"></div>
+
+            <div class="reveal-content relative z-20 flex flex-col items-center justify-center px-6 text-center mt-[-5vh]">
+                <div class="w-52 h-52 mb-8 p-1 rounded-full border border-gold/30 backdrop-blur-md bg-black/50 shadow-2xl">
+                    <img src="./assets/logo.png" class="w-full h-full rounded-full object-cover" alt="Logo">
+                </div>
+                
+                <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-2 tracking-wide drop-shadow-lg">JEFFERSON ALMEIDA</h1>
+                <p class="text-gold text-sm md:text-lg tracking-[0.2em] mb-10 uppercase font-medium drop-shadow-md">Tradição & Estilo</p>
+                
+                <button onclick="startBooking()" class="bg-gold hover:bg-gold-dark text-black font-bold py-4 px-12 rounded-full shadow-[0_0_30px_rgba(203,167,79,0.3)] transition-all transform hover:scale-105 flex items-center gap-3 text-lg animate-bounce-slow">
+                    <span>AGENDAR HORÁRIO</span>
+                    <i data-lucide="calendar-days" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <button onclick="scrollToNextSection()" class="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 text-white/70 hover:text-gold transition-colors animate-pulse p-4 cursor-pointer">
+                <i data-lucide="chevron-down" class="w-10 h-10"></i>
+            </button>
+        </div>
+
+        <div id="section-1" class="h-screen flex flex-col justify-end bg-dark-bg text-center relative overflow-hidden border-t border-dark-border snap-start snap-always" data-index="1">
+            <div class="absolute inset-0 z-0">
+                <img src="./assets/corte1.jpg" onerror="this.src='./assets/logo.png'" class="w-full h-full object-cover opacity-70 transform hover:scale-105 transition-transform duration-[10s]">
+            </div>
+            
+            <div class="reveal-content relative z-10 w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-32 pb-24 px-6 translate-y-10 opacity-0 transition-all duration-1000 ease-out delay-200">
+                <h2 class="font-display text-3xl md:text-5xl text-white mb-3 drop-shadow-lg">Cortes Modernos</h2>
+                <div class="w-16 h-1 bg-gold mx-auto mb-4 rounded-full"></div>
+                <p class="text-gray-200 leading-relaxed text-base md:text-lg max-w-lg mx-auto drop-shadow-md">
+                    Do degradê navalhado ao social clássico. <br>Aqui o seu estilo é nossa prioridade absoluta.
+                </p>
+            </div>
+        </div>
+
+        <div id="section-2" class="h-screen flex flex-col justify-end bg-dark-card text-center relative overflow-hidden snap-start snap-always" data-index="2">
+            <div class="absolute inset-0 z-0">
+                <img src="./assets/corte2.jpg" onerror="this.src='./assets/logo.png'" class="w-full h-full object-cover opacity-70 transform hover:scale-105 transition-transform duration-[10s]">
+            </div>
+            
+            <div class="reveal-content relative z-10 w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-32 pb-24 px-6 translate-y-10 opacity-0 transition-all duration-1000 ease-out delay-200">
+                <h2 class="font-display text-3xl md:text-5xl text-white mb-3 drop-shadow-lg">Barba de Respeito</h2>
+                <div class="w-16 h-1 bg-gold mx-auto mb-4 rounded-full"></div>
+                <p class="text-gray-200 leading-relaxed text-base md:text-lg max-w-lg mx-auto drop-shadow-md">
+                    Lâmina afiada e os melhores produtos para alinhar sua barba com precisão cirúrgica.
+                </p>
+            </div>
+        </div>
+
+        <div class="snap-start snap-always bg-black py-12 px-4 text-center border-t border-dark-border/30 h-[30vh] flex flex-col justify-center items-center">
+            <div class="w-16 h-16 mx-auto mb-4 opacity-50 hover:opacity-100 transition-all cursor-pointer">
+                <img src="./assets/logo.png" class="w-full h-full object-cover rounded-full">
+            </div>
+            <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Barbearia Jefferson Almeida</p>
+            <p class="text-[10px] text-gray-600">© 2026 Todos os direitos reservados.</p>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 w-full bg-vitro-dark border-t border-gray-700 z-[100] py-2 px-4 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] flex justify-between items-center transition-transform duration-300">
+        
+        <div class="flex items-center gap-4">
+            <div class="vitro-logo" style="font-size: 5px; color: #fff;"></div>
+            
+            <div class="hidden sm:block h-6 w-[1px] bg-gray-700"></div>
+            
+            <span class="text-gray-300 font-bold text-xs sm:text-sm uppercase tracking-wide">
+                Gostou do site?
+            </span>
+        </div>
+
+        <a href="https://agenciavitro.com.br/saibamais.html?modelo=agenda" target="_blank" class="bg-vitro-accent text-vitro-dark text-xs font-black px-4 py-2 rounded-full hover:bg-white transition flex items-center gap-2 shadow-lg transform active:scale-95 uppercase tracking-wide">
+            Entenda a Proposta <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </a>
+    </div>
+
+    <div id="view-booking" class="flex flex-col h-full hidden opacity-0 transition-opacity duration-500 pb-16">
+       
+       <header class="grid grid-cols-3 items-center p-4 border-b border-dark-border bg-dark-card/95 backdrop-blur z-30 h-24">
+            <div class="flex justify-start">
+                <button onclick="goBack()" class="text-gray-400 hover:text-white p-2 transition-colors rounded-full hover:bg-white/10">
+                    <i data-lucide="chevron-left" class="w-8 h-8"></i>
+                </button>
+            </div>
+            <div class="flex justify-center relative">
+                <div class="w-20 h-20 absolute -top-10 rounded-full border-2 border-gold/50 bg-black p-1 overflow-hidden shadow-lg transform transition hover:scale-105">
+                    <img src="./assets/logo.png" class="w-full h-full object-cover" alt="Logo">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <div class="text-[10px] font-bold text-gray-500 tracking-widest border border-dark-border px-3 py-1 rounded-full">
+                    PASSO <span id="current-step-num" class="text-gold font-bold text-sm">1</span>/4
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 relative overflow-hidden w-full max-w-md mx-auto bg-dark-bg">
+            <div id="step-1" class="step-content absolute inset-0 overflow-y-auto p-5 pb-24 transition-transform duration-500 ease-out">
+                <h2 class="text-2xl font-display font-bold text-white mb-1">Qual o serviço?</h2>
+                <p class="text-gray-500 text-sm mb-6">Selecione para avançar.</p>
+                <div id="services-list" class="space-y-3"></div>
+            </div>
+
+            <div id="step-2" class="step-content absolute inset-0 overflow-y-auto p-5 pb-24 translate-x-full transition-transform duration-500 ease-out bg-dark-bg">
+                <h2 class="text-2xl font-display font-bold text-white mb-1">Profissional</h2>
+                <p class="text-gray-500 text-sm mb-6">Escolha quem vai te atender.</p>
+                <div onclick="selectBarber(1)" class="cursor-pointer group relative rounded-2xl overflow-hidden aspect-[4/5] border border-dark-border hover:border-gold transition-all shadow-xl">
+                    <img src="./assets/jefferson.jpg" onerror="this.src='./assets/logo.png'" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 w-full p-6">
+                        <h3 class="font-display text-2xl text-white uppercase font-bold drop-shadow-md">Jefferson Almeida</h3>
+                        <p class="text-gold text-sm font-medium mb-4 drop-shadow-md">Barbeiro Principal • Desde 2015</p>
+                        <button class="w-full bg-gold text-black font-bold py-3 rounded-xl opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                            Selecionar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-3" class="step-content absolute inset-0 overflow-y-auto p-5 pb-24 translate-x-full transition-transform duration-500 ease-out bg-dark-bg">
+                <h2 class="text-2xl font-display font-bold text-white mb-1">Data & Hora</h2>
+                <p class="text-gray-500 text-sm mb-6">Disponibilidade de Jefferson.</p>
+                <button onclick="openCalendar()" class="w-full bg-dark-card border border-dark-border rounded-xl p-4 flex items-center justify-between group hover:border-gold transition-colors mb-8 shadow-md">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-dark-bg p-3 rounded-lg text-gold border border-dark-border">
+                            <i data-lucide="calendar"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-xs text-gray-500 uppercase font-bold">Data Selecionada</p>
+                            <p id="display-date" class="text-lg font-bold text-white">Hoje</p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-down" class="text-gray-500 group-hover:text-gold"></i>
+                </button>
+                <div id="time-slots-container" class="space-y-6 animate-fadeIn"></div>
+            </div>
+
+            <div id="step-4" class="step-content absolute inset-0 overflow-y-auto p-5 pb-24 translate-x-full transition-transform duration-500 ease-out bg-dark-bg">
+                <h2 class="text-2xl font-display font-bold text-white mb-1">Finalizar</h2>
+                <p class="text-gray-500 text-sm mb-6">Insira seus dados para confirmar.</p>
+                <div class="bg-dark-card border border-dark-border rounded-xl p-5 mb-6 shadow-lg relative overflow-hidden">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                        <img src="./assets/logo.png" class="w-48 h-48 object-cover opacity-10 grayscale mix-blend-overlay">
+                    </div>
+                    <div class="relative z-10 space-y-3">
+                        <div class="flex justify-between border-b border-dark-border pb-2">
+                            <span class="text-gray-400 text-sm">Serviço</span>
+                            <span id="summary-service" class="text-white font-bold text-right text-sm">-</span>
+                        </div>
+                        <div class="flex justify-between border-b border-dark-border pb-2">
+                            <span class="text-gray-400 text-sm">Profissional</span>
+                            <span id="summary-barber" class="text-white font-bold text-right text-sm">Jefferson Almeida</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-1">
+                            <span class="text-gray-400 text-sm">Data/Hora</span>
+                            <span id="summary-datetime" class="text-gold font-bold text-right text-lg">-</span>
+                        </div>
+                    </div>
+                </div>
+                <form id="booking-form" class="space-y-4" onsubmit="return false;">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Seu Nome</label>
+                        <input type="text" id="input-name" class="w-full bg-dark-card border border-dark-border rounded-lg p-4 text-white focus:border-gold transition placeholder-gray-600 outline-none" placeholder="Ex: João">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">WhatsApp</label>
+                        <input type="tel" id="input-phone" class="w-full bg-dark-card border border-dark-border rounded-lg p-4 text-white focus:border-gold transition placeholder-gray-600 outline-none" placeholder="(99) 99999-9999" maxlength="15">
+                    </div>
+                    <button onclick="finishBooking()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg mt-4 flex items-center justify-center gap-2 transition-all transform active:scale-95">
+                        <span>Confirmar Agendamento</span>
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div id="step-success" class="step-content absolute inset-0 overflow-y-auto p-6 translate-x-full transition-transform duration-500 ease-out bg-dark-bg z-40 flex flex-col items-center justify-center pb-24">
+                <div class="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center mb-6 text-green-500 animate-bounce-slow border border-green-500/30">
+                    <i data-lucide="check" class="w-12 h-12"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-white mb-2">Confirmado!</h2>
+                <p class="text-gray-500 text-center mb-8 text-sm">Agendamento realizado com sucesso.</p>
+                <div class="bg-dark-card w-full border border-dark-border rounded-2xl p-6 relative overflow-hidden mb-8 max-w-sm shadow-2xl">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold via-white to-gold opacity-50"></div>
+                    <div class="text-center mb-6 border-b border-dashed border-dark-border pb-6">
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">BARBEARIA</p>
+                        <p class="font-display text-2xl text-white tracking-wide">JEFFERSON ALMEIDA</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between"><span class="text-gray-500 text-xs uppercase">Cliente</span><span id="receipt-name" class="text-white font-bold text-sm">João</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500 text-xs uppercase">Serviço</span><span id="receipt-service" class="text-white font-bold text-sm">Corte</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500 text-xs uppercase">Data</span><span id="receipt-date" class="text-gold font-bold text-sm">Hoje, 15:00</span></div>
+                    </div>
+                </div>
+                <p class="text-white text-lg font-bold mb-4 text-center px-4">Precisa cancelar ou remarcar?</p>
+                <button onclick="contactWhatsapp()" class="w-full max-w-[220px] bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-3 px-6 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 mb-6 transform active:scale-95">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-8.68-2.031-.967-.272-.099-.47-.149-.669.198-.198.347-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    Falar no WhatsApp
+                </button>
+                <button onclick="location.reload()" class="bg-gold hover:bg-gold-dark text-black font-bold py-3 px-8 rounded-full shadow-lg transition-all transform hover:scale-105">
+                    Voltar ao Início
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <div id="calendar-modal" class="fixed inset-0 bg-black/90 z-[60] hidden flex items-center justify-center backdrop-blur-md opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-dark-card w-full max-w-[350px] rounded-2xl p-6 border border-dark-border shadow-2xl transform scale-95 transition-transform duration-300" id="calendar-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-display text-xl text-white">Escolha o dia</h3>
+                <button onclick="closeCalendar()" class="bg-dark-bg p-2 rounded-full text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+            </div>
+            <div class="flex justify-between items-center mb-4 text-white">
+                <button onclick="changeMonth(-1)" class="p-2 hover:text-gold"><i data-lucide="chevron-left"></i></button>
+                <span id="calendar-month-year" class="font-bold text-lg uppercase tracking-wide">JANEIRO</span>
+                <button onclick="changeMonth(1)" class="p-2 hover:text-gold"><i data-lucide="chevron-right"></i></button>
+            </div>
+            <div class="grid grid-cols-7 gap-2 text-center mb-2">
+                <div class="text-xs font-bold text-gray-600">D</div>
+                <div class="text-xs font-bold text-gray-600">S</div>
+                <div class="text-xs font-bold text-gray-600">T</div>
+                <div class="text-xs font-bold text-gray-600">Q</div>
+                <div class="text-xs font-bold text-gray-600">Q</div>
+                <div class="text-xs font-bold text-gray-600">S</div>
+                <div class="text-xs font-bold text-gray-600">S</div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>

@@ -5,106 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerProjeto - Showroom</title>
     <style>
-        /* Estilo Minimalista */
+        /* Estilo Minimalista com Fonte de Sistema */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
+            background-color: #f1f5f9;
             color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
             text-align: center;
         }
         
-        /* Cabeçalho */
-        header { margin-bottom: 50px; }
-        h1 { font-size: 2.5rem; margin-bottom: 10px; color: #2d3436; letter-spacing: -1px; }
-        p.subtitle { color: #636e72; font-size: 1.1rem; }
+        header { margin-bottom: 40px; }
+        h1 { font-size: 2rem; margin-bottom: 5px; color: #0f172a; letter-spacing: -0.5px; font-weight: 800; }
+        p.subtitle { color: #64748b; font-size: 1rem; }
         
-        /* Grid de Projetos */
         .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        /* Cartão do Projeto */
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid transparent;
             display: flex;
             flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            display: flex;
             align-items: center;
+            gap: 20px;
+            text-align: left;
         }
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-color: #0984e3;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #10b981;
         }
-        .icon { font-size: 2rem; margin-bottom: 15px; }
-        h3 { margin: 0; font-size: 1.2rem; }
-        span.status {
-            font-size: 0.8rem;
-            background-color: #e17055;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            margin-top: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-            font-size: 0.7rem;
-        }
-        span.status.active { background-color: #00b894; }
-
-        /* Rodapé */
-        footer { margin-top: 60px; color: #b2bec3; font-size: 0.9rem; }
-        .logo-footer { font-weight: bold; color: #2d3436; }
+        .icon { font-size: 2rem; background: #f8fafc; padding: 15px; border-radius: 50%; }
+        h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #1e293b; }
+        p.desc { margin: 0; font-size: 0.9rem; color: #94a3b8; }
+        
+        footer { margin-top: 50px; opacity: 0.8; display: flex; justify-content: center; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>VerProjeto</h1>
-            <p class="subtitle">Central de visualização de vitrines digitais</p>
+            <h1>Meus Projetos</h1>
+            <p class="subtitle">Selecione uma vitrine para visualizar</p>
         </header>
 
         <div class="projects-grid">
-            
-            <a href="/padaria" class="card">
-                <div class="icon">🥖</div>
-                <h3>Padaria do João</h3>
-                <span class="status active">Online</span>
+            <a href="/showroom/jeffersonalmeida" class="card">
+                <div class="icon">💈</div>
+                <div>
+                    <h3>Barbearia Jefferson</h3>
+                    <p class="desc">Sistema de Agendamento</p>
+                </div>
             </a>
 
-            <a href="#" class="card" style="opacity: 0.5; cursor: default;">
-                <div class="icon">👗</div>
-                <h3>Loja de Roupas</h3>
-                <span class="status">Em breve</span>
+            <a href="/showroom/viviconnectlingerie" class="card">
+                <div class="icon">👙</div>
+                <div>
+                    <h3>Vivi Connect</h3>
+                    <p class="desc">Loja Virtual (Zap)</p>
+                </div>
             </a>
-
-            <a href="#" class="card" style="opacity: 0.5; cursor: default;">
-                <div class="icon">🍔</div>
-                <h3>Hamburgueria</h3>
-                <span class="status">Em breve</span>
-            </a>
-
         </div>
 
         <footer>
-            <p>Gerenciado por <span class="logo-footer">Agência Vitrô</span></p>
+            <div class="vitro-logo" style="font-size: 6px; color: #0f172a;"></div>
         </footer>
     </div>
+
+    <script src="script.js"></script>
 
 </body>
 </html>

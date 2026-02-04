@@ -1,88 +1,81 @@
-/* Rolagem suave em toda a página */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Impede seleção de texto */
-.no-select, img, button, a {
+/* =========================================
+   2. SISTEMA DE LOGO (PADRONIZADO COM SHOWROOM)
+   ========================================= */
+.logo-wrapper {
+    font-size: 10px; 
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
     user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    overflow: visible;
+    line-height: 1;
 }
 
-/* Utilitário para esconder scrollbar mantendo funcionalidade */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-/* Animações Keyframes */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+.brand-sub {
+    font-size: 1.2em;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    
+    margin-bottom: 0.65em; 
+    margin-left: 0.05em; 
+    
+    position: relative;
+    z-index: 25;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.brand-main {
+    font-size: 8em;
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    color: #fff;
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    line-height: 0.65;
+    z-index: 25;
 }
 
-@keyframes popIn {
-    0% { transform: scale(0); }
-    80% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+.char-o-wrapper { 
+    position: relative; 
+    display: inline-block; 
+    margin-left: 0.02em; 
 }
 
-/* Classes utilitárias de animação */
-.animate-fadeInUp {
-    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+.accent {
+    position: absolute;
+    top: -0.20em; 
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--accent);
+    font-size: 0.85em;
+    font-weight: 900;
+    z-index: 20; 
+    transition: top 0.3s ease, color 0.3s ease;
 }
 
-.animate-slideUp {
-    animation: slideUp 0.3s ease-out forwards;
+.dot {
+    width: 0.15em; 
+    height: 0.15em;
+    background-color: var(--accent);
+    
+    /* PADRONIZAÇÃO SHOWROOM: REDONDO */
+    border-radius: 50%; 
+    
+    margin-left: 0.1em;
+    display: inline-block;
 }
 
-.animate-fadeIn {
-    animation: fadeIn 0.3s ease-out forwards;
+/* Hover */
+.logo-wrapper:hover .accent { 
+    top: -0.35em; 
+    color: #34d399; 
+    text-shadow: 0 0 20px var(--accent-glow); 
 }
 
-.pop-in {
-    animation: popIn 0.3s ease-out forwards;
-}
-
-/* Efeitos do Card de Produto */
-.product-card {
-    transition: transform 0.2s ease-in-out;
-}
-
-.product-card:active {
-    transform: scale(0.98);
-}
-
-.product-card:hover .product-img {
-    transform: scale(1.05);
-}
-
-/* Indicadores do Carrossel (Bolinhas) */
-.carousel-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-}
-
-.carousel-dot.active {
-    background-color: #d946ef; /* Magenta */
-    transform: scale(1.2);
-}
+/* Classes de Tamanho */
+.size-hero { font-size: 12px; }   
+.size-footer { font-size: 6px; }  
+.size-nav { font-size: 5px; }
