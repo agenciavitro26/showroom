@@ -1,4 +1,21 @@
 /* =========================================
+   0. CONFIGURAÇÃO DE APP (NOVO)
+   ========================================= */
+body {
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+input, textarea {
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
+}
+a, button, [role="button"] {
+    cursor: pointer;
+}
+
+/* =========================================
    2. SISTEMA DE LOGO (PADRONIZADO COM SHOWROOM)
    ========================================= */
 .logo-wrapper {

@@ -100,23 +100,6 @@
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-vitro-dark border-t border-gray-700 z-[100] py-2 px-4 shadow-[0_-5px_20px_rgba(0,0,0,0.3)] flex justify-between items-center transition-transform duration-300">
-        
-        <div class="flex items-center gap-4">
-            <div class="vitro-logo" style="font-size: 5px; color: #fff;"></div>
-            
-            <div class="hidden sm:block h-6 w-[1px] bg-gray-700"></div>
-            
-            <span class="text-gray-300 font-bold text-xs sm:text-sm uppercase tracking-wide">
-                Gostou do site?
-            </span>
-        </div>
-
-        <a href="https://agenciavitro.com.br/saibamais.html?modelo=agenda" target="_blank" class="bg-vitro-accent text-vitro-dark text-xs font-black px-4 py-2 rounded-full hover:bg-white transition flex items-center gap-2 shadow-lg transform active:scale-95 uppercase tracking-wide">
-            Entenda a Proposta <i data-lucide="arrow-right" class="w-3 h-3"></i>
-        </a>
-    </div>
-
     <div id="view-booking" class="flex flex-col h-full hidden opacity-0 transition-opacity duration-500 pb-16">
        
        <header class="grid grid-cols-3 items-center p-4 border-b border-dark-border bg-dark-card/95 backdrop-blur z-30 h-24">
@@ -272,5 +255,14 @@
 
     <script src="script.js"></script>
     <script src="../script.js"></script>
+    
+    <script>
+        // INICIALIZA O RODAPÉ PADRÃO (Modelo: agenda)
+        document.addEventListener('DOMContentLoaded', () => {
+            if(typeof initVitroFooter === 'function') {
+                initVitroFooter('agenda');
+            }
+        });
+    </script>
 </body>
 </html>

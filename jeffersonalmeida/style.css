@@ -5,6 +5,19 @@ html {
 
 body {
     overscroll-behavior-y: none;
+    /* BLOQUEIO DE SELEÇÃO E CURSOR TIPO APP */
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
+input, textarea {
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
+}
+button, a {
+    cursor: pointer;
 }
 
 /* Impede seleção de texto */
@@ -102,19 +115,27 @@ body {
 .calendar-day:hover:not(.disabled) {
     background-color: #333;
 }
+
+/* Dia Selecionado (Clicado) */
 .calendar-day.selected {
     background-color: #cba74f;
     color: #000;
     font-weight: bold;
 }
+
+/* Dias Bloqueados/Passados */
 .calendar-day.disabled {
     color: #333;
     pointer-events: none;
     opacity: 0.3;
 }
+
+/* --- CORREÇÃO DO DIA ATUAL (HOJE) --- */
 .calendar-day.today {
+    background-color: #cba74f !important; /* Fundo Dourado */
+    color: #000000 !important;            /* Texto Preto (Legível) */
+    font-weight: bold;
     border: 1px solid #cba74f;
-    color: #cba74f;
 }
 
 /* Input Focus */

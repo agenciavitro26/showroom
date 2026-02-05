@@ -22,6 +22,8 @@
             width: 100%;
             padding: 20px;
             text-align: center;
+            /* Espaço para o rodapé fixo não cortar conteúdo */
+            padding-bottom: 80px; 
         }
         
         header { margin-bottom: 40px; }
@@ -57,7 +59,6 @@
         h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #1e293b; }
         p.desc { margin: 0; font-size: 0.9rem; color: #94a3b8; }
         
-        footer { margin-top: 50px; opacity: 0.8; display: flex; justify-content: center; }
     </style>
 </head>
 <body>
@@ -85,13 +86,15 @@
                 </div>
             </a>
         </div>
-
-        <footer>
-            <div class="vitro-logo" style="font-size: 6px; color: #0f172a;"></div>
-        </footer>
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Inicializa o rodapé sem modelo específico (vai para a home da agência)
+        document.addEventListener("DOMContentLoaded", () => {
+            initVitroFooter(null);
+        });
+    </script>
 
 </body>
 </html>
