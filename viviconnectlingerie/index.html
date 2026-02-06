@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivi Connect | Lingerie & Sex Shop</title>
+    <title>Vivi Connect - Lingerie & Sex Shop</title>
     
+    <link rel="icon" href="./assets/logo.png" type="image/png">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script>
         tailwind.config = {
             theme: {
@@ -25,8 +26,7 @@
                     },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
-                        // REMOVIDO INTER - USANDO SYSTEM FONTS
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
                     }
                 }
             }
@@ -35,24 +35,22 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="font-sans text-gray-800 bg-[#fdfdfd] no-select pb-20"> 
-    <div class="fixed top-0 left-0 w-full z-[60] bg-brand-dark/95 backdrop-blur-sm text-white text-[10px] md:text-xs text-center py-2 font-bold tracking-widest uppercase px-4 shadow-sm">
-        Entrega para todo o Brasil • Frete Grátis acima de R$ 300
+    
+    <div class="fixed top-0 left-0 w-full z-[60] bg-brand-dark/95 backdrop-blur-sm text-white text-[9px] sm:text-[10px] md:text-xs text-center py-2 font-bold tracking-widest uppercase px-2 shadow-sm whitespace-nowrap overflow-hidden text-ellipsis h-[32px] flex items-center justify-center">
+        ENTREGA PARA TODO O BRASIL • FRETE GRÁTIS ACIMA DE R$ 200
     </div>
 
-    <div id="floating-controls" class="fixed top-16 left-0 w-full z-40 px-4 pointer-events-none transition-transform duration-700 ease-in-out will-change-transform">
+    <div id="floating-controls" class="fixed top-10 left-0 w-full z-50 px-4 pointer-events-none transition-transform duration-700 ease-in-out will-change-transform">
         <div class="container mx-auto flex justify-between items-start">
-            
-            <button id="btn-menu-action" onclick="toggleMenu()" class="pointer-events-auto bg-white/90 backdrop-blur-md text-brand-dark p-3 rounded-full shadow-xl border border-white/50 hover:bg-brand-DEFAULT hover:text-white transition-colors duration-300 group outline-none focus:outline-none tap-highlight-transparent">
+            <button id="btn-menu-action" class="pointer-events-auto bg-brand-light backdrop-blur-md text-brand-dark p-3 rounded-full shadow-xl border border-white/50 hover:bg-white hover:text-brand-DEFAULT transition-colors duration-300 group outline-none focus:outline-none tap-highlight-transparent">
                 <i data-lucide="menu" class="w-6 h-6 group-hover:scale-110 transition-transform duration-300"></i>
             </button>
-            
-            <button onclick="toggleCart()" class="pointer-events-auto bg-white/90 backdrop-blur-md text-brand-dark p-3 rounded-full shadow-xl border border-white/50 hover:bg-brand-DEFAULT hover:text-white transition-colors duration-300 group relative outline-none focus:outline-none tap-highlight-transparent">
+            <button onclick="toggleCart()" class="pointer-events-auto bg-brand-light backdrop-blur-md text-brand-dark p-3 rounded-full shadow-xl border border-white/50 hover:bg-white hover:text-brand-DEFAULT transition-colors duration-300 group relative outline-none focus:outline-none tap-highlight-transparent">
                 <i data-lucide="shopping-bag" class="w-6 h-6 group-hover:scale-110 transition-transform duration-300"></i>
-                <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full opacity-0 transition-opacity transform scale-0 duration-300">0</span>
+                <span id="cart-badge" class="absolute -top-1 -right-1 bg-brand-dark text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full opacity-0 transition-opacity transform scale-0 duration-300">0</span>
             </button>
         </div>
     </div>
@@ -60,16 +58,16 @@
     <div id="menu-overlay" class="fixed inset-0 bg-black/60 z-[70] hidden opacity-0 transition-opacity duration-300" onclick="toggleMenu()"></div>
     <div id="menu-drawer" class="fixed top-0 left-0 w-[85%] max-w-[320px] h-full bg-white z-[80] transform -translate-x-full transition-transform duration-500 shadow-2xl flex flex-col">
         <div class="p-8 flex flex-col items-center bg-brand-light/30 border-b">
-            <div class="w-24 h-24 rounded-full border-2 border-brand-dark p-1 mb-3 bg-white">
+            <div class="w-24 h-24 rounded-full border-2 border-brand-dark p-1 mb-3 bg-white shadow-sm">
                 <img src="./assets/logo.png" class="w-full h-full rounded-full object-cover select-none">
             </div>
             <h2 class="font-serif text-xl font-bold text-brand-deep">Vivi Connect</h2>
         </div>
         <nav class="flex-1 p-6 space-y-6 overflow-y-auto">
-            <a href="#" onclick="navigateTo('home'); toggleMenu();" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="home" class="w-5 h-5"></i> Início</a>
-            <a href="#" onclick="navigateTo('about'); toggleMenu();" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="heart" class="w-5 h-5"></i> A Loja</a>
-            <a href="#" onclick="navigateTo('delivery'); toggleMenu();" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="truck" class="w-5 h-5"></i> Entregas & Frete</a>
-            <a href="https://api.whatsapp.com/send?phone=5511933489947" target="_blank" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT"><i data-lucide="message-circle" class="w-5 h-5"></i> Fale Conosco</a>
+            <a onclick="navigateTo('home')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="home" class="w-5 h-5"></i> Início</a>
+            <a onclick="navigateTo('about')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="heart" class="w-5 h-5"></i> A Loja</a>
+            <a onclick="navigateTo('delivery')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="truck" class="w-5 h-5"></i> Entregas</a>
+            <a onclick="checkoutWhatsApp()" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="message-circle" class="w-5 h-5"></i> Fale Conosco</a>
         </nav>
         <div class="p-6 bg-gray-50 text-xs text-gray-400 text-center">
             Av. Salgado Filho 3530, Guarulhos - SP
@@ -77,96 +75,125 @@
     </div>
 
     <main id="main-content">
-        <div id="page-home">
-            <section class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden bg-gray-900">
-                <div class="absolute inset-0">
-                    <img src="./assets/bg-loja.jpg" onerror="this.src='https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=2070'" class="w-full h-full object-cover opacity-70 blur-[2px] scale-105 select-none">
+        <section class="relative h-[60vh] min-h-[450px] flex items-center justify-center overflow-hidden bg-gray-900">
+            <div class="absolute inset-0">
+                <img src="./assets/bg-loja.jpg" onerror="this.src='https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=2070'" class="w-full h-full object-cover opacity-60 blur-[2px] scale-105 select-none">
+            </div>
+            <div class="relative z-10 flex flex-col items-center animate-fadeInUp px-4 text-center mt-10">
+                <div class="w-32 h-32 md:w-48 md:h-48 rounded-full bg-white/10 backdrop-blur-md border border-white/30 p-2 shadow-2xl mb-6">
+                        <img src="./assets/logo.png" class="w-full h-full rounded-full object-cover shadow-inner select-none" onerror="this.style.display='none'">
                 </div>
-                
-                <div class="relative z-10 flex flex-col items-center animate-fadeInUp px-4 text-center mt-10">
-                    <div class="w-36 h-36 md:w-52 md:h-52 rounded-full bg-white/10 backdrop-blur-md border border-white/30 p-2 shadow-2xl mb-6">
-                        <img src="./assets/logo.png" class="w-full h-full rounded-full object-cover shadow-inner select-none">
-                    </div>
-                    <h1 class="font-serif text-4xl md:text-6xl text-white font-bold tracking-wide drop-shadow-lg mb-2">VIVI CONNECT</h1>
-                    <p class="text-pink-100 uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold bg-black/40 px-4 py-1.5 rounded-full backdrop-blur border border-white/10">Lingerie & Sex Shop</p>
-                    
-                    <button onclick="document.getElementById('vitrine-anchor').scrollIntoView({behavior: 'smooth'})" class="mt-8 animate-bounce text-white opacity-80 hover:opacity-100 transition focus:outline-none">
-                        <i data-lucide="chevron-down" class="w-10 h-10"></i>
-                    </button>
-                </div>
-            </section>
+                <h1 class="font-serif text-4xl md:text-6xl text-white font-bold tracking-wide drop-shadow-lg mb-2">VIVI CONNECT</h1>
+                <p class="text-pink-100 uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold bg-black/40 px-4 py-1.5 rounded-full backdrop-blur border border-white/10 mt-1">Lingerie & Sex Shop</p>
+                <button onclick="document.getElementById('content-anchor').scrollIntoView({behavior: 'smooth'})" class="mt-8 animate-bounce text-white opacity-80 hover:opacity-100 transition focus:outline-none">
+                    <i data-lucide="chevron-down" class="w-10 h-10"></i>
+                </button>
+            </div>
+        </section>
 
-            <section id="vitrine-anchor" class="bg-white relative z-20 rounded-t-[35px] -mt-10 px-3 md:px-4 pt-12 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-                <div class="container mx-auto max-w-6xl">
+        <section id="content-anchor" class="bg-white relative z-20 rounded-t-[35px] -mt-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] min-h-[100vh] scroll-mt-[32px]">
+            <div class="container mx-auto max-w-6xl">
+                
+                <div id="sticky-header-wrapper" class="sticky top-[32px] z-40 bg-white rounded-t-[35px] transition-all duration-300 pb-2 border-b border-transparent pt-6 -mt-4 px-2 md:px-4">
                     
-                    <div class="mb-10 px-2">
-                        <div class="flex flex-wrap justify-center gap-2 mb-4" id="nav-buttons-container">
-                            <button onclick="navigateTo('home')" class="px-5 py-2 rounded-full font-bold text-sm bg-brand-deep text-white shadow-md hover:bg-brand-dark transition transform active:scale-95">Início</button>
-                            <button onclick="navigateTo('about')" class="px-5 py-2 rounded-full font-bold text-sm bg-brand-deep text-white shadow-md hover:bg-brand-dark transition transform active:scale-95">A Loja</button>
-                            <button onclick="navigateTo('delivery')" class="px-5 py-2 rounded-full font-bold text-sm bg-brand-deep text-white shadow-md hover:bg-brand-dark transition transform active:scale-95">Entregas</button>
+                    <div id="mini-header" class="flex flex-col items-center justify-center transition-all duration-500 ease-in-out overflow-hidden max-h-0 opacity-0 mb-0">
+                        <div class="flex items-center gap-2 mb-3 animate-fadeIn">
+                            <img src="./assets/logo.png" class="w-8 h-8 rounded-full border border-gray-100 shadow-sm select-none">
+                            <span class="font-serif font-bold text-brand-deep text-lg tracking-tight">Vivi Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-brand-light rounded-3xl p-1.5 flex flex-wrap justify-center gap-2 mx-auto max-w-md shadow-inner mb-2">
+                        <button id="tab-home" onclick="navigateTo('home')" class="flex-1 px-4 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-brand-dark text-white shadow-md transition transform active:scale-95 text-center nav-tab">Início</button>
+                        <button id="tab-about" onclick="navigateTo('about')" class="flex-1 px-4 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-white/50 text-brand-dark hover:bg-white transition transform active:scale-95 text-center nav-tab">A Loja</button>
+                        <button id="tab-delivery" onclick="navigateTo('delivery')" class="flex-1 px-4 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-white/50 text-brand-dark hover:bg-white transition transform active:scale-95 text-center nav-tab">Entregas</button>
+                    </div>
+
+                    <div id="cats-wrapper" class="overflow-x-auto pb-1 pt-1 scrollbar-hide">
+                        <div class="flex flex-wrap justify-center gap-1.5" id="cats-container"></div>
+                    </div>
+                </div>
+
+                <div class="px-2 md:px-4 pt-8 md:pt-10">
+                    <div id="view-home" class="view-section pb-10">
+                        <div class="flex justify-between items-center px-2 mb-4 border-b border-gray-100 pb-2">
+                            <span id="active-cat-label" class="text-xs font-bold text-gray-500 uppercase tracking-wide">Destaques</span>
+                            <div class="relative">
+                                <select id="sort-select" onchange="applySort(this.value)" class="appearance-none bg-transparent text-[10px] font-bold text-gray-500 py-1 pr-5 focus:outline-none cursor-pointer text-right">
+                                    <option value="default">Padrão</option>
+                                    <option value="price-asc">Menor Preço</option>
+                                    <option value="price-desc">Maior Preço</option>
+                                    <option value="az">A - Z</option>
+                                </select>
+                                <i data-lucide="arrow-up-down" class="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
                         </div>
                         
-                        <div class="flex flex-wrap justify-center gap-2" id="categories-container"></div>
+                        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8"></div>
                     </div>
 
-                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8 transition-opacity duration-300 opacity-100 min-h-[300px]"></div>
-                </div>
-            </section>
-        </div>
+                    <div id="view-about" class="view-section hidden animate-fadeIn max-w-4xl mx-auto text-center pb-10">
+                        <h2 class="font-serif text-3xl text-brand-deep font-bold mb-6">Nossa Essência</h2>
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                            <div class="w-full h-48 md:h-64 bg-gray-200 rounded-xl mb-6 overflow-hidden">
+                                <img src="./assets/bg-loja.jpg" onerror="this.src='https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=2070'" class="w-full h-full object-cover opacity-90 select-none">
+                            </div>
+                            <p class="text-gray-600 leading-relaxed mb-4 text-sm md:text-base px-2 md:px-8 font-light italic">
+                                "A Vivi Connect nasceu do desejo de conectar você à sua melhor versão. Mais do que uma loja de lingerie e produtos sensuais, somos um espaço de autoconhecimento e liberdade.<br><br>
+                                Nossa curadoria é feita com carinho, pensando em peças que unem conforto, sensualidade e elegância para todos os corpos. Queremos que você se sinta poderosa, confiante e pronta para viver momentos inesquecíveis.<br><br>
+                                Seja bem-vinda ao nosso universo!"
+                            </p>
+                        </div>
+                    </div>
 
-        <div id="page-about" class="hidden pt-28 px-4 container mx-auto animate-fadeIn max-w-4xl text-center">
-            <h2 class="font-serif text-3xl text-brand-deep font-bold mb-6">Nossa Essência</h2>
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
-                <div class="w-full h-48 md:h-64 bg-gray-200 rounded-xl mb-6 overflow-hidden">
-                    <img src="./assets/bg-loja.jpg" class="w-full h-full object-cover opacity-80 select-none">
+                    <div id="view-delivery" class="view-section hidden animate-fadeIn max-w-4xl mx-auto pb-10">
+                        <h2 class="font-serif text-3xl text-brand-deep font-bold mb-6 text-center">Entregas & Frete</h2>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-light flex items-start gap-4">
+                                <div class="bg-brand-light p-3 rounded-full text-brand-dark shrink-0"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h3 class="font-bold text-brand-deep text-sm mb-1">Retirada na Loja</h3>
+                                    <p class="text-xs text-gray-500">Av. Salgado Filho 3530<br>Guarulhos - SP</p>
+                                </div>
+                            </div>
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-light flex items-start gap-4">
+                                <div class="bg-brand-light p-3 rounded-full text-brand-dark shrink-0"><i data-lucide="truck" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h3 class="font-bold text-brand-deep text-sm mb-1">Envio para todo Brasil</h3>
+                                    <p class="text-xs text-gray-500 mb-1">Enviamos via Correios e Motoboy.</p>
+                                    <span class="inline-block bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded">Frete Grátis > R$ 200</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p class="text-gray-600 leading-relaxed mb-4 text-sm md:text-base">
-                    A <strong>Vivi Connect</strong> nasceu em 2022 com o propósito de conectar mulheres à sua própria essência. Mais do que vender lingerie, entregamos autoestima.
-                </p>
             </div>
-        </div>
-
-        <div id="page-delivery" class="hidden pt-28 px-4 container mx-auto animate-fadeIn max-w-4xl">
-            <h2 class="font-serif text-3xl text-brand-deep font-bold mb-6 text-center">Entregas & Frete</h2>
-            <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-light flex items-start gap-4">
-                    <div class="bg-brand-light p-3 rounded-full text-brand-dark shrink-0"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
-                    <div>
-                        <h3 class="font-bold text-brand-deep text-sm mb-1">Retirada na Loja</h3>
-                        <p class="text-xs text-gray-500">Av. Salgado Filho, 3530<br>Guarulhos - SP</p>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-light flex items-start gap-4">
-                    <div class="bg-brand-light p-3 rounded-full text-brand-dark shrink-0"><i data-lucide="truck" class="w-5 h-5"></i></div>
-                    <div>
-                        <h3 class="font-bold text-brand-deep text-sm mb-1">Envio para todo Brasil</h3>
-                        <p class="text-xs text-gray-500 mb-1">Correios e Motoboy.</p>
-                        <span class="inline-block bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded">Frete Grátis > R$ 300</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </section>
     </main>
 
     <div id="product-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-end sm:items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closeProductModal(event)">
         <div class="bg-white w-full h-[90vh] sm:h-auto sm:max-h-[85vh] sm:w-[900px] sm:rounded-2xl shadow-2xl flex flex-col sm:flex-row overflow-hidden transform translate-y-full sm:translate-y-0 transition-transform duration-300" id="product-modal-content">
-            <div class="w-full sm:w-1/2 h-[50vh] sm:h-[600px] bg-gray-100 relative group">
-                <button onclick="closeProductModal()" class="absolute top-4 left-4 bg-black/20 hover:bg-black/50 text-white p-2 rounded-full sm:hidden z-20"><i data-lucide="chevron-down"></i></button>
+            <div class="w-full sm:w-1/2 h-[50vh] sm:h-[600px] bg-gray-100 relative group select-none">
+                <button onclick="closeProductModal()" class="absolute top-4 left-4 bg-black/20 hover:bg-black/50 text-white p-2 rounded-full sm:hidden z-30"><i data-lucide="chevron-down"></i></button>
                 <img id="modal-img" src="" class="w-full h-full object-cover transition-opacity duration-300 ease-in-out select-none">
-                <button id="prev-slide" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40 text-black p-3 rounded-full backdrop-blur-sm hover:bg-white/80 transition focus:outline-none"><i data-lucide="chevron-left"></i></button>
-                <button id="next-slide" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/40 text-black p-3 rounded-full backdrop-blur-sm hover:bg-white/80 transition focus:outline-none"><i data-lucide="chevron-right"></i></button>
-                <div id="carousel-dots" class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10"></div>
+                <button id="prev-slide" class="absolute left-0 top-0 bottom-0 w-16 flex items-center justify-center hover:bg-black/5 transition-colors duration-300 z-10 cursor-pointer focus:outline-none">
+                    <i data-lucide="chevron-left" class="w-10 h-10 text-gray-500/50 hover:text-gray-800 transition-colors"></i>
+                </button>
+                <button id="next-slide" class="absolute right-0 top-0 bottom-0 w-16 flex items-center justify-center hover:bg-black/5 transition-colors duration-300 z-10 cursor-pointer focus:outline-none">
+                    <i data-lucide="chevron-right" class="w-10 h-10 text-gray-500/50 hover:text-gray-800 transition-colors"></i>
+                </button>
+                <div id="carousel-dots" class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-20 pointer-events-none"></div>
             </div>
             <div class="w-full sm:w-1/2 p-6 md:p-10 flex flex-col overflow-y-auto bg-white">
                 <div class="flex justify-between items-start">
                     <span id="modal-cat" class="text-xs font-bold text-brand-DEFAULT uppercase tracking-wider mb-2 block">Categoria</span>
                     <button onclick="closeProductModal()" class="hidden sm:block text-gray-400 hover:text-black focus:outline-none"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                <h2 id="modal-title" class="font-serif text-3xl text-brand-deep font-bold leading-tight mb-4">Nome do Produto</h2>
-                <p id="modal-desc" class="text-gray-600 leading-relaxed mb-6 text-sm">Descrição completa.</p>
+                <h2 id="modal-title" class="font-serif text-3xl text-brand-deep font-bold leading-tight mb-4">Nome</h2>
+                <p id="modal-desc" class="text-gray-600 leading-relaxed mb-6 text-sm">Desc</p>
                 <div class="mt-auto pt-6 border-t border-gray-100">
                     <p class="text-2xl font-bold text-brand-dark mb-4" id="modal-price">R$ 0,00</p>
-                    <button id="modal-add-btn" style="background-color: #d946ef;" class="w-full text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-200 flex items-center justify-center gap-3 transition-transform active:scale-95 hover:opacity-90 outline-none focus:outline-none">
+                    <button id="modal-add-btn" class="w-full bg-brand-dark text-white py-4 rounded-xl font-bold shadow-lg flex items-center justify-center gap-3 transition-transform active:scale-95 hover:opacity-90 outline-none focus:outline-none">
                         <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                         <span>Adicionar à Sacola</span>
                     </button>
@@ -175,30 +202,32 @@
         </div>
     </div>
 
-    <div id="cart-modal" class="fixed inset-0 bg-black/60 z-[90] hidden items-end sm:items-center justify-center backdrop-blur-sm">
-        <div class="bg-white w-full sm:w-[400px] h-[85vh] sm:h-auto sm:max-h-[85vh] sm:rounded-2xl shadow-2xl flex flex-col animate-slideUp sm:animate-fadeIn overflow-hidden">
-            <div class="p-5 bg-white border-b flex justify-between items-center">
+    <div id="cart-modal" class="fixed inset-0 bg-black/60 z-[90] hidden flex items-start justify-center pt-4 sm:pt-0 sm:items-center backdrop-blur-sm">
+        <div class="bg-white w-[95%] sm:w-[450px] max-h-[85vh] sm:max-h-[85vh] rounded-2xl shadow-2xl flex flex-col animate-slideDown overflow-hidden">
+            <div class="p-5 bg-white border-b flex justify-between items-center shrink-0">
                 <h3 class="font-serif text-xl font-bold text-brand-deep">Sua Sacola</h3>
                 <button onclick="toggleCart()" class="text-gray-400 hover:text-brand-dark focus:outline-none"><i data-lucide="x"></i></button>
             </div>
-            <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#fcfcfc]"></div>
-            <div class="p-5 bg-white border-t shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+            
+            <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#f9fafb]"></div>
+            
+            <div class="p-5 bg-white border-t shadow-[0_-5px_20px_rgba(0,0,0,0.05)] shrink-0">
                 <div class="mb-4">
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-gray-500 font-bold">FRETE GRÁTIS</span>
-                        <span id="shipping-status" class="font-bold text-gray-400">Falta R$ 300</span>
+                        <span class="text-gray-500 font-bold uppercase tracking-wider">Frete Grátis</span>
+                        <span id="shipping-status" class="font-bold text-gray-400">Calculando...</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div id="shipping-bar" class="bg-brand-DEFAULT h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div id="shipping-bar" class="bg-brand-DEFAULT h-full rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
                     </div>
                 </div>
                 <div class="flex justify-between items-end mb-4">
-                    <span class="text-gray-500 text-sm">Subtotal</span>
-                    <span id="cart-total" class="font-serif text-2xl font-bold text-brand-dark">R$ 0,00</span>
+                    <span class="text-gray-500 text-sm font-medium">Subtotal</span>
+                    <span id="cart-total" class="text-3xl font-bold text-brand-dark">R$ 0,00</span>
                 </div>
-                <button id="btn-checkout" onclick="checkoutWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-green-200 flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none">
+                <button id="btn-checkout" onclick="checkoutWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-green-100 flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none">
                     <span>Finalizar no WhatsApp</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
@@ -206,9 +235,7 @@
 
     <script src="script.js"></script>
     <script src="../script.js"></script>
-    
     <script>
-        // INICIALIZA O RODAPÉ PADRÃO (Modelo: loja)
         document.addEventListener('DOMContentLoaded', () => {
             if(typeof initVitroFooter === 'function') {
                 initVitroFooter('loja');

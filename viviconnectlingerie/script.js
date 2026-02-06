@@ -1,485 +1,488 @@
-// --- CONFIGURAÇÃO DA API ---
-// Cole a URL que você gerou no Google Apps Script aqui:
-const API_URL = "https://script.google.com/macros/s/AKfycbwy3diO0fWYMeD5_atjYyuqTH-cjLY_2Ytge8Gvuk79trTRPcgY9qnQecx_nfw5do2_/exec"; 
+// --- 1. CONFIGURAÇÕES FIXAS ---
+const SITE_IDENTITY = {
+    NAME: "Vivi Connect - Lingerie & Sex Shop",
+    COLOR: "#86198f", // Cor Escura da Barra
+};
 
-// Inicializa ícones do Lucide
-lucide.createIcons();
+const API_URL = "https://script.google.com/macros/s/AKfycbwB_Prcy-ti2j2VLGZCijjGkenMd_Lzk7Vmwj7_eqc1vxFV9_Qz-pbUJ52Aka4oof1SEA/exec";
 
-// Estado Global
+const STORE_DATA = {
+    Whatsapp: "5511933489947",
+    Frete_Minimo: 200, 
+};
+
 let allProducts = [];
-const categories = ["Todos", "Conjuntos", "Sutiãs", "Calcinhas", "Body", "Camisolas", "Pijamas", "Infantil", "Sex Shop"];
-let cart = [];
+let cart = []; 
+let categories = []; 
+let currentCategory = "Destaques"; 
+let currentSort = "default"; 
+let currentView = 'home'; 
 
-// --- 1. INICIALIZAÇÃO ---
+if (typeof lucide !== 'undefined') lucide.createIcons();
+
 document.addEventListener('DOMContentLoaded', () => {
-    initCategories();
-    fetchProducts(); // Busca dados da planilha
+    applyFixedIdentity();
+    loadStoreData();
+    setupEventListeners();
+    updateFloatingButton();
 });
 
-// --- FUNÇÃO DE BUSCA (COM CORREÇÃO DE IMAGEM) ---
-async function fetchProducts() {
-    const grid = document.getElementById('products-grid');
-    
-    grid.innerHTML = `
-        <div class="col-span-full flex flex-col items-center justify-center py-20 text-brand-DEFAULT">
-            <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-4"></i>
-            <p class="animate-pulse">Carregando coleção...</p>
-        </div>
+function applyFixedIdentity() {
+    document.title = SITE_IDENTITY.NAME;
+    const color = SITE_IDENTITY.COLOR;
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .text-brand-dark { color: ${color} !important; }
+        .bg-brand-dark { background-color: ${color} !important; }
+        #cart-badge { background-color: ${color} !important; }
+        .active-tab { background-color: ${color} !important; color: white !important; }
+        button.active-category-btn, 
+        .active-category-btn { 
+            background-color: ${color} !important; 
+            color: white !important; 
+            border-color: ${color} !important; 
+            opacity: 1 !important;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     `;
-    lucide.createIcons();
+    document.head.appendChild(style);
+}
 
+async function loadStoreData() {
+    const grid = document.getElementById('products-grid');
+    grid.innerHTML = '<div class="col-span-full py-20 flex justify-center"><i data-lucide="loader-2" class="animate-spin w-8 h-8 text-brand-dark"></i></div>';
+    
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
-        
-        allProducts = data.map(item => {
-            // --- TRATAMENTO DE IMAGENS BLINDADO ---
+
+        const parseMoney = (value) => {
+            if (!value) return 0;
+            if (typeof value === 'number') return value;
+            const clean = value.toString().replace(/[^0-9,]/g, '').replace(',', '.');
+            return parseFloat(clean) || 0;
+        };
+
+        allProducts = data.items.map(item => {
             let imagesArray = [];
-            
             if (item.image) {
-                let rawLinks = item.image.includes('||') ? item.image.split('||') : [item.image];
-                
-                imagesArray = rawLinks.map(link => {
-                    link = link.trim();
-                    
-                    // SE FOR VÍDEO (Identificado pelo nosso marcador #VIDEO)
-                    if (link.includes('#VIDEO')) {
-                        return link; // Retorna o link original de download
+                let raw = item.image.includes('||') ? item.image.split('||') : [item.image];
+                imagesArray = raw.map(l => {
+                    l = l.trim();
+                    if (l.includes('drive.google.com') && !l.includes('thumbnail')) {
+                        let id = l.split('id=')[1]?.split('&')[0] || l.split('/d/')[1]?.split('/')[0];
+                        if(id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
                     }
-
-                    // SE FOR FOTO (Google Drive)
-                    if (link.includes('drive.google.com') && !link.includes('export=download')) {
-                        let fileId = "";
-                        if (link.includes('id=')) {
-                            fileId = link.split('id=')[1].split('&')[0];
-                        }
-                        if (fileId) {
-                            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-                        }
-                    }
-                    return link;
-                });
+                    return l;
+                }).filter(l => l.length > 10);
             }
-
-            // Remove itens vazios ou quebrados
-            imagesArray = imagesArray.filter(l => l && l.length > 10);
 
             return {
                 id: item.id,
                 name: item.name,
-                price: typeof item.price === 'string' ? parseFloat(item.price.replace(',','.').replace('R$','').trim()) : item.price,
+                price: parseMoney(item.price),
+                oldPrice: parseMoney(item.oldPrice),
                 category: item.category,
                 desc: item.description,
-                images: imagesArray 
+                images: imagesArray,
+                featured: item.featured 
             };
         });
 
-        renderGrid("Todos");
-        
+        if (data.categories && data.categories.length > 0) {
+            categories = data.categories.filter(c => c !== "Todos" && c !== "Destaques" && c !== "Promoções" && c !== "Lançamentos");
+        } else {
+            categories = [...new Set(allProducts.map(p => p.category))].sort();
+        }
+
+        renderCategories();
+        filterAndRender("Destaques"); 
+
     } catch (error) {
-        console.error("Erro ao carregar produtos:", error);
-        grid.innerHTML = '<div class="col-span-full text-center text-red-500 py-20">Erro ao carregar produtos.</div>';
+        console.error(error);
+        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Erro ao carregar loja.</p>';
     }
 }
 
-// --- 2. LÓGICA DE SCROLL ---
-const floatingControls = document.getElementById('floating-controls');
-const btnMenuAction = document.getElementById('btn-menu-action');
-let isScrolled = false;
-
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
-        if (!isScrolled) {
-            floatingControls.style.transform = `translateY(calc(100vh - 180px))`;
-            btnMenuAction.innerHTML = '<i data-lucide="arrow-up" class="w-6 h-6"></i>';
-            lucide.createIcons();
-            btnMenuAction.onclick = () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                btnMenuAction.blur(); 
-            };
-            isScrolled = true;
-        }
-    } else {
-        if (isScrolled) {
-            floatingControls.style.transform = `translateY(0)`;
-            btnMenuAction.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
-            lucide.createIcons();
-            btnMenuAction.onclick = () => {
-                toggleMenu();
-                btnMenuAction.blur();
-            };
-            isScrolled = false;
-        }
-    }
-});
-btnMenuAction.onclick = () => { toggleMenu(); btnMenuAction.blur(); };
-
-// --- 3. NAVEGAÇÃO SPA ---
-function navigateTo(pageId) {
-    toggleMenu(true); 
-    const pages = {
-        'home': document.getElementById('page-home'),
-        'about': document.getElementById('page-about'),
-        'delivery': document.getElementById('page-delivery')
-    };
-    Object.values(pages).forEach(el => el.classList.add('hidden'));
-    if (pages[pageId]) {
-        pages[pageId].classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function scrollToVitrine() {
-    document.getElementById('vitrine-anchor').scrollIntoView({ behavior: 'smooth' });
-}
-
-// --- 4. MENU MOBILE ---
-function toggleMenu(forceClose = false) {
-    const overlay = document.getElementById('menu-overlay');
-    const drawer = document.getElementById('menu-drawer');
-    const isHidden = overlay.classList.contains('hidden');
-    
-    if (forceClose || !isHidden) {
-        overlay.classList.add('opacity-0');
-        drawer.classList.add('-translate-x-full');
-        setTimeout(() => overlay.classList.add('hidden'), 500);
-    } else {
-        overlay.classList.remove('hidden');
-        setTimeout(() => overlay.classList.remove('opacity-0'), 10);
-        drawer.classList.remove('-translate-x-full');
-    }
-}
-
-// --- 5. CATEGORIAS ---
-function initCategories() {
-    const container = document.getElementById('categories-container');
+function renderCategories() {
+    const container = document.getElementById('cats-container');
     container.innerHTML = '';
-    categories.forEach((cat, index) => {
+    const specialCats = ["Destaques", "Promoções"];
+    const allCats = [...specialCats, ...categories];
+
+    allCats.forEach(cat => {
         const btn = document.createElement('button');
         btn.innerText = cat;
-        
-        const baseClass = "px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 border shadow-sm outline-none";
-        const activeClass = "bg-brand-deep text-white border-brand-deep";
-        const inactiveClass = "bg-white text-gray-600 border-gray-200 hover:border-brand-DEFAULT hover:text-brand-DEFAULT";
-        
-        btn.className = `${baseClass} ${index === 0 ? activeClass : inactiveClass}`;
-        
-        btn.onclick = () => {
-            Array.from(container.children).forEach(c => c.className = `${baseClass} ${inactiveClass}`);
-            btn.className = `${baseClass} ${activeClass}`;
-            
-            const grid = document.getElementById('products-grid');
-            grid.classList.remove('opacity-100');
-            grid.classList.add('opacity-0');
-            
-            setTimeout(() => {
-                renderGrid(cat);
-                grid.classList.remove('opacity-0');
-                grid.classList.add('opacity-100');
-            }, 300);
-        };
+        btn.setAttribute('data-cat', cat);
+        btn.className = `cat-btn-standard shrink-0`;
+        btn.onclick = () => filterAndRender(cat);
         container.appendChild(btn);
     });
 }
 
-function renderGrid(category) {
+function filterAndRender(categoryName) {
+    currentCategory = categoryName;
+    document.getElementById('active-cat-label').innerText = categoryName;
+    
+    document.querySelectorAll('.cat-btn-standard').forEach(b => {
+        if(b.getAttribute('data-cat') === categoryName) {
+            b.classList.add('active-category-btn');
+            b.style.backgroundColor = SITE_IDENTITY.COLOR;
+            b.style.borderColor = SITE_IDENTITY.COLOR;
+            b.style.color = 'white';
+        } else {
+            b.classList.remove('active-category-btn');
+            b.style.backgroundColor = '';
+            b.style.borderColor = '';
+            b.style.color = '';
+        }
+    });
+
+    let filtered = [];
+    if (categoryName === "Destaques") {
+        filtered = allProducts.filter(p => p.featured === true);
+    } 
+    else if (categoryName === "Promoções") {
+        filtered = allProducts.filter(p => p.oldPrice > p.price);
+    } 
+    else {
+        filtered = allProducts.filter(p => p.category === categoryName);
+    }
+
+    applySort(filtered);
+    renderGrid(filtered);
+}
+
+function applySort(valueOrList) {
+    let listToSort = Array.isArray(valueOrList) ? valueOrList : null;
+    if (typeof valueOrList === 'string') {
+        currentSort = valueOrList;
+        filterAndRender(currentCategory);
+        return;
+    }
+    if (currentSort === "price-asc") listToSort.sort((a, b) => a.price - b.price);
+    else if (currentSort === "price-desc") listToSort.sort((a, b) => b.price - a.price);
+    else if (currentSort === "az") listToSort.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function renderGrid(products) {
     const grid = document.getElementById('products-grid');
     grid.innerHTML = '';
-    // Usa allProducts (vindo da API) em vez de mockProducts
-    const filtered = category === "Todos" ? allProducts : allProducts.filter(p => p.category === category);
-    
-    if (filtered.length === 0) {
-        grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">Nenhum item encontrado nesta categoria.</p>';
+
+    if (products.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400 flex flex-col items-center"><i data-lucide="package-open" class="w-10 h-10 mb-2 opacity-50"></i><p>Nenhum produto encontrado.</p></div>';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
         return;
     }
 
-    filtered.forEach(p => {
+    products.forEach(p => {
         const card = document.createElement('div');
-        card.className = "product-card group cursor-pointer animate-fadeInUp"; // Adicionei animação de entrada
+        card.className = "group relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-all duration-300 cursor-pointer animate-fadeInUp";
         card.onclick = () => openProductModal(p.id);
-        
-        const mainImage = p.images && p.images.length > 0 ? p.images[0] : './assets/logo.png';
+
+        const img = (p.images && p.images.length) ? p.images[0] : 'https://placehold.co/400x400?text=Sem+Foto';
+        const isPromo = (p.oldPrice > p.price);
+        const promoHtml = isPromo 
+            ? `<span class="absolute top-2 right-2 bg-brand-dark text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 animate-pulse uppercase tracking-wider shadow-sm">Promoção</span>` 
+            : '';
 
         card.innerHTML = `
-            <div class="relative overflow-hidden rounded-xl aspect-[3/4] bg-gray-100 shadow-sm mb-2">
-                <img src="${mainImage}" class="product-img w-full h-full object-cover transition-transform duration-500 select-none" 
-                     onerror="this.onerror=null; this.src='./assets/logo.png';">
+            <div class="relative w-full pt-[110%] overflow-hidden bg-gray-50">
+                ${promoHtml}
+                <img src="${img}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
                 <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/50 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
-                    <span class="text-white text-xs font-bold">Ver Detalhes</span>
+                    <span class="text-white text-xs font-bold bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/30">Ver Detalhes</span>
                 </div>
             </div>
-            <div>
-                <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">${p.category}</p>
-                <h3 class="text-gray-800 font-medium leading-tight truncate text-sm">${p.name}</h3>
-                <p class="text-brand-dark font-bold mt-1">R$ ${p.price.toFixed(2).replace('.',',')}</p>
+            <div class="p-3 flex flex-col flex-1">
+                <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">${p.category}</p>
+                <h3 class="font-serif text-gray-800 text-sm font-bold leading-tight mb-2 line-clamp-2 min-h-[2.5em]">${p.name}</h3>
+                <div class="mt-auto flex items-end gap-2">
+                    <span class="font-bold text-brand-dark text-base">R$ ${p.price.toFixed(2).replace('.',',')}</span>
+                    ${isPromo ? `<span class="text-xs text-gray-400 line-through mb-0.5">R$ ${p.oldPrice.toFixed(2).replace('.',',')}</span>` : ''}
+                </div>
             </div>
         `;
         grid.appendChild(card);
     });
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// --- 6. CARROSSEL DE IMAGENS ---
+function navigateTo(viewId) {
+    currentView = viewId;
+    
+    const tabs = ['home', 'about', 'delivery'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const section = document.getElementById(`view-${t}`);
+        if (t === viewId) {
+            if(btn) { btn.classList.remove('bg-white/50', 'text-brand-dark', 'hover:bg-white'); btn.classList.add('bg-brand-dark', 'text-white'); }
+            if(section) section.classList.remove('hidden');
+        } else {
+            if(btn) { btn.classList.add('bg-white/50', 'text-brand-dark', 'hover:bg-white'); btn.classList.remove('bg-brand-dark', 'text-white'); }
+            if(section) section.classList.add('hidden');
+        }
+    });
+
+    const drawer = document.getElementById('menu-drawer');
+    if (drawer && !drawer.classList.contains('-translate-x-full')) toggleMenu(true);
+
+    const contentAnchor = document.getElementById('content-anchor');
+    if (contentAnchor) {
+        contentAnchor.style.minHeight = '100vh';
+        contentAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    const catsWrapper = document.getElementById('cats-wrapper');
+    if(catsWrapper) {
+        if(viewId === 'home') catsWrapper.style.display = 'block';
+        else catsWrapper.style.display = 'none';
+    }
+
+    updateFloatingButton();
+}
+
+const floatingControls = document.getElementById('floating-controls');
+const btnMenuAction = document.getElementById('btn-menu-action');
+const miniHeader = document.getElementById('mini-header');
+const stickyWrapper = document.getElementById('sticky-header-wrapper');
+
+function updateFloatingButton() {
+    const currentScrollY = window.scrollY;
+
+    // LÓGICA DO MINI HEADER (Agora Fixo ao Rolar)
+    if (miniHeader) {
+        // Se rolou mais que 250px (capa saiu)
+        if (currentScrollY > 250) {
+            miniHeader.classList.remove('max-h-0', 'opacity-0', 'mb-0');
+            miniHeader.classList.add('max-h-[100px]', 'opacity-100', 'mb-0');
+            
+            if(stickyWrapper) {
+                stickyWrapper.classList.add('shadow-md', 'border-gray-100');
+                // REMOVE AS BORDAS ARREDONDADAS PARA ENCAIXAR E TAPAR O FUNDO
+                stickyWrapper.classList.remove('rounded-t-[35px]');
+            }
+        } 
+        else {
+            miniHeader.classList.add('max-h-0', 'opacity-0', 'mb-0');
+            miniHeader.classList.remove('max-h-[100px]', 'opacity-100');
+            
+            if(stickyWrapper) {
+                stickyWrapper.classList.remove('shadow-md', 'border-gray-100');
+                // VOLTA AS BORDAS ARREDONDADAS
+                stickyWrapper.classList.add('rounded-t-[35px]');
+            }
+        }
+    }
+
+    if(btnMenuAction) {
+        if (currentView !== 'home') {
+            btnMenuAction.innerHTML = '<i data-lucide="arrow-left" class="w-6 h-6"></i>';
+            btnMenuAction.onclick = () => navigateTo('home');
+            floatingControls.style.transform = `translateY(0)`;
+        } else if (currentScrollY > 300) {
+            btnMenuAction.innerHTML = '<i data-lucide="arrow-up" class="w-6 h-6"></i>';
+            btnMenuAction.onclick = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); btnMenuAction.blur(); };
+            floatingControls.style.transform = `translateY(calc(100vh - 180px))`;
+        } else {
+            btnMenuAction.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+            btnMenuAction.onclick = () => { toggleMenu(); btnMenuAction.blur(); };
+            floatingControls.style.transform = `translateY(0)`;
+        }
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+window.addEventListener('scroll', updateFloatingButton);
+
+function toggleMenu(forceClose = false) {
+    const overlay = document.getElementById('menu-overlay');
+    const drawer = document.getElementById('menu-drawer');
+    if(!overlay || !drawer) return;
+    if (forceClose || !overlay.classList.contains('hidden')) {
+        overlay.classList.add('opacity-0'); drawer.classList.add('-translate-x-full'); setTimeout(() => overlay.classList.add('hidden'), 300);
+    } else {
+        overlay.classList.remove('hidden'); setTimeout(() => overlay.classList.remove('opacity-0'), 10); drawer.classList.remove('-translate-x-full');
+    }
+}
+function setupEventListeners() { 
+    const overlay = document.getElementById('menu-overlay');
+    if(overlay) overlay.onclick = toggleMenu; 
+}
+
 let currentProduct = null;
 let currentImageIndex = 0;
-
 function openProductModal(id) {
-    const p = allProducts.find(x => x.id === id); // Busca em allProducts
-    if (!p) return;
-    currentProduct = p;
-    currentImageIndex = 0;
-
+    const p = allProducts.find(x => x.id === id); if (!p) return;
+    currentProduct = p; currentImageIndex = 0;
     document.getElementById('modal-cat').innerText = p.category;
     document.getElementById('modal-title').innerText = p.name;
-    document.getElementById('modal-desc').innerText = p.desc;
-    document.getElementById('modal-price').innerText = "R$ " + p.price.toFixed(2).replace('.',',');
-    
+    document.getElementById('modal-desc').innerText = p.desc || "Sem descrição disponível.";
+    document.getElementById('modal-price').innerText = `R$ ${p.price.toFixed(2).replace('.',',')}`;
     updateCarousel();
-
+    const modal = document.getElementById('product-modal');
+    modal.classList.remove('hidden'); 
+    setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('product-modal-content').classList.remove('translate-y-full'); }, 10);
+    document.getElementById('modal-add-btn').onclick = () => { addToCart(p.id); closeProductModal(); };
     document.getElementById('prev-slide').onclick = (e) => { e.stopPropagation(); prevSlide(); };
     document.getElementById('next-slide').onclick = (e) => { e.stopPropagation(); nextSlide(); };
-
-    const btn = document.getElementById('modal-add-btn');
-    btn.onclick = () => {
-        addToCart(p.id);
-        closeProductModal();
-    };
-
-    const modal = document.getElementById('product-modal');
-    const content = document.getElementById('product-modal-content');
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('translate-y-full');
-    }, 10);
 }
 
-function updateCarousel(isFirstLoad = false) {
-    const imgEl = document.getElementById('modal-img');
-    const wrapper = imgEl.parentElement; // O container pai
-    
+function updateCarousel() {
+    const imgEl = document.getElementById('modal-img'); 
+    const images = currentProduct.images || [];
+    const targetSrc = images.length ? images[currentImageIndex] : 'https://placehold.co/400x400';
+    const dots = document.getElementById('carousel-dots');
+    dots.innerHTML = '';
     const prevBtn = document.getElementById('prev-slide');
     const nextBtn = document.getElementById('next-slide');
-    const dotsContainer = document.getElementById('carousel-dots');
-    
-    const images = currentProduct.images || [];
-    const currentSrc = (images.length > 0) ? images[currentImageIndex] : './assets/logo.png';
-    const isVideo = currentSrc.includes('#VIDEO');
-
-    // 1. Configura Setas e Bolinhas
     if(images.length > 1) {
-        prevBtn.style.display = 'flex';
-        nextBtn.style.display = 'flex';
-        // Garante que as setas fiquem SOBRE o vídeo
-        prevBtn.style.zIndex = '50';
-        nextBtn.style.zIndex = '50';
-    } else {
-        prevBtn.style.display = 'none';
-        nextBtn.style.display = 'none';
-    }
-
-    dotsContainer.innerHTML = '';
-    // Garante que as bolinhas fiquem SOBRE o vídeo
-    dotsContainer.style.zIndex = '50'; 
-    
-    if(images.length > 1) {
-        images.forEach((_, idx) => {
-            const dot = document.createElement('div');
-            dot.className = `carousel-dot ${idx === currentImageIndex ? 'active' : ''}`;
-            dotsContainer.appendChild(dot);
+        images.forEach((_, i) => {
+            const d = document.createElement('div');
+            d.className = `w-2 h-2 rounded-full mx-1 transition-all duration-300 ${i === currentImageIndex ? 'bg-brand-dark scale-125' : 'bg-black/20'}`;
+            dots.appendChild(d);
         });
-    }
-
-    // 2. LIMPEZA DE VÍDEO ANTERIOR
-    // Remove qualquer vídeo que esteja rodando para não pesar ou tocar som
-    const oldVideo = wrapper.querySelector('video');
-    if (oldVideo) oldVideo.remove();
-
-    // 3. RENDERIZAÇÃO
-    if (isVideo) {
-        // --- MODO VÍDEO ---
-        // Esconde a imagem (mas mantém ela lá pra segurar o tamanho do container se precisar)
-        imgEl.style.display = 'none'; 
-        
-        const cleanLink = currentSrc.replace('#VIDEO', '');
-        
-        const videoEl = document.createElement('video');
-        videoEl.src = cleanLink;
-        
-        // REGRAS DE OURO DO AUTOPLAY:
-        videoEl.muted = true;       // Obrigatório para autoplay
-        videoEl.autoplay = true;    // Toca sozinho
-        videoEl.loop = true;        // Repete infinito
-        videoEl.playsInline = true; // Não abre tela cheia no iPhone
-        videoEl.controls = false;   // Remove a barra de controle feia
-        
-        // Estilo: Fica no fundo, cobrindo tudo
-        videoEl.className = "w-full h-full object-contain absolute top-0 left-0 bg-black animate-fadeIn";
-        videoEl.style.zIndex = "0"; // Fica atrás das setas
-        
-        // Adiciona ao container
-        wrapper.appendChild(videoEl);
-        
-        // Força o play (alguns browsers precisam desse empurrãozinho)
-        videoEl.play().catch(e => console.log("Autoplay restrito pelo navegador (interaja com a página primeiro)."));
-
+        prevBtn.style.display = 'flex'; nextBtn.style.display = 'flex';
     } else {
-        // --- MODO FOTO ---
-        imgEl.style.display = 'block'; // Mostra a tag img
-        
-        // Efeito Fade (Lógica que ajustamos antes)
-        imgEl.style.opacity = '0';
-        
-        const tempImg = new Image();
-        tempImg.onload = () => {
-            imgEl.src = currentSrc;
-            setTimeout(() => { imgEl.style.opacity = '1'; }, 50);
-        };
-        tempImg.onerror = () => {
-            imgEl.src = './assets/logo.png';
-            imgEl.style.opacity = '1';
-        };
-        tempImg.src = currentSrc;
+        prevBtn.style.display = 'none'; nextBtn.style.display = 'none';
     }
+    imgEl.style.opacity = '0';
+    const tempImg = new Image();
+    tempImg.src = targetSrc;
+    tempImg.onload = () => { imgEl.src = targetSrc; requestAnimationFrame(() => { imgEl.style.opacity = '1'; }); };
 }
-
-function nextSlide() {
-    if(!currentProduct || !currentProduct.images) return;
-    if(currentImageIndex < currentProduct.images.length - 1) {
-        currentImageIndex++;
-    } else {
-        currentImageIndex = 0;
-    }
-    updateCarousel();
-}
-
-function prevSlide() {
-    if(!currentProduct || !currentProduct.images) return;
-    if(currentImageIndex > 0) {
-        currentImageIndex--;
-    } else {
-        currentImageIndex = currentProduct.images.length - 1;
-    }
-    updateCarousel();
-}
-
-function closeProductModal(e) {
-    if (e && e.target.id !== 'product-modal') return;
+function prevSlide() { if(currentProduct.images.length > 1) { currentImageIndex = (currentImageIndex - 1 + currentProduct.images.length) % currentProduct.images.length; updateCarousel(); }}
+function nextSlide() { if(currentProduct.images.length > 1) { currentImageIndex = (currentImageIndex + 1) % currentProduct.images.length; updateCarousel(); }}
+function closeProductModal(e) { 
+    if(e && e.target.id !== 'product-modal' && !e.target.closest('button')) return;
     const modal = document.getElementById('product-modal');
-    const content = document.getElementById('product-modal-content');
-    modal.classList.add('opacity-0');
-    content.classList.add('translate-y-full');
-    setTimeout(() => modal.classList.add('hidden'), 300);
+    modal.classList.add('opacity-0'); document.getElementById('product-modal-content').classList.add('translate-y-full');
+    setTimeout(() => modal.classList.add('hidden'), 300); 
 }
 
-// --- 7. CARRINHO & FRETE ---
+// --- CARRINHO ---
 function toggleCart() {
-    const modal = document.getElementById('cart-modal');
-    if (modal.classList.contains('hidden')) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        setTimeout(() => renderCart(), 50);
-    } else {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
+    const m = document.getElementById('cart-modal');
+    if(m.classList.contains('hidden')) { m.classList.remove('hidden'); setTimeout(() => renderCart(), 10); } else m.classList.add('hidden');
 }
 
-function addToCart(id) {
-    const prod = allProducts.find(p => p.id === id); // Busca em allProducts
-    if(prod) {
-        cart.push(prod);
-        updateCartBadge();
-        toggleCart();
-    }
+function addToCart(id) { 
+    const p = allProducts.find(x => x.id === id); 
+    if(!p) return;
+    const existingItem = cart.find(item => item.product.id === id);
+    if(existingItem) { existingItem.qty += 1; } else { cart.push({ product: p, qty: 1 }); }
+    updateBadge(); 
+    toggleCart(); 
 }
 
-function removeFromCart(index) {
-    cart.splice(index, 1);
+function changeQty(id, delta) {
+    const index = cart.findIndex(item => item.product.id === id);
+    if (index === -1) return;
+    const item = cart[index];
+    const newQty = item.qty + delta;
+    if (newQty <= 0) { cart.splice(index, 1); } else { item.qty = newQty; }
+    updateBadge();
     renderCart();
-    updateCartBadge();
 }
 
-function updateCartBadge() {
-    const badge = document.getElementById('cart-badge');
-    badge.innerText = cart.length;
-    if (cart.length > 0) {
-        badge.classList.remove('opacity-0', 'scale-0');
-        badge.classList.add('pop-in');
-        setTimeout(() => badge.classList.remove('pop-in'), 300);
-    } else {
-        badge.classList.add('opacity-0', 'scale-0');
-    }
+function updateBadge() { 
+    const b = document.getElementById('cart-badge'); 
+    const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
+    b.innerText = totalCount; 
+    if(totalCount > 0) { b.classList.remove('opacity-0', 'scale-0'); } 
+    else { b.classList.add('opacity-0', 'scale-0'); } 
 }
 
 function renderCart() {
-    const container = document.getElementById('cart-items');
-    const btnCheckout = document.getElementById('btn-checkout');
-    const bar = document.getElementById('shipping-bar');
-    const status = document.getElementById('shipping-status');
-    const totalEl = document.getElementById('cart-total');
-
-    container.innerHTML = '';
+    const c = document.getElementById('cart-items'); 
+    c.innerHTML = ''; 
     let total = 0;
 
     if (cart.length === 0) {
-        container.innerHTML = `
-            <div class="flex flex-col items-center justify-center h-full text-gray-300">
-                <i data-lucide="shopping-bag" class="w-16 h-16 mb-4 stroke-1"></i>
-                <p>Sua sacola está vazia</p>
-            </div>`;
-        btnCheckout.disabled = true;
-        bar.style.width = '0%'; 
-        totalEl.innerText = "R$ 0,00";
-        status.innerText = "Falta R$ 300";
-    } else {
-        btnCheckout.disabled = false;
-        cart.forEach((item, index) => {
-            total += item.price;
-            const thumb = item.images && item.images.length > 0 ? item.images[0] : './assets/logo.png';
-            
-            const el = document.createElement('div');
-            el.className = "flex gap-3 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm";
-            el.innerHTML = `
-                <img src="${thumb}" class="w-12 h-12 rounded-md object-cover select-none" onerror="this.src='./assets/logo.png'">
-                <div class="flex-1">
-                    <h4 class="text-xs font-bold text-gray-700 line-clamp-1">${item.name}</h4>
-                    <p class="text-xs font-bold text-brand-dark">R$ ${item.price.toFixed(2).replace('.',',')}</p>
-                </div>
-                <button onclick="removeFromCart(${index})" class="text-gray-400 hover:text-red-500 p-2 focus:outline-none"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            `;
-            container.appendChild(el);
-        });
+        c.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-gray-400"><i data-lucide="shopping-bag" class="w-12 h-12 mb-2 opacity-20"></i><p>Sua sacola está vazia.</p></div>';
     }
 
-    const goal = 300;
-    const progress = Math.min((total / goal) * 100, 100);
-    totalEl.innerText = "R$ " + total.toFixed(2).replace('.',',');
-    bar.style.width = `${progress}%`;
+    cart.forEach((item) => {
+        const p = item.product;
+        total += p.price * item.qty;
+
+        const d = document.createElement('div'); 
+        d.className = "flex gap-4 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3";
+        
+        const imgUrl = (p.images && p.images.length) ? p.images[0] : 'https://placehold.co/100';
+        const minusIcon = item.qty === 1 ? 'trash-2' : 'minus';
+        const minusColor = item.qty === 1 ? 'text-red-400 hover:bg-red-50' : 'text-gray-500 hover:bg-gray-100';
+
+        d.innerHTML = `
+            <div class="w-16 h-16 rounded-lg bg-gray-100 shrink-0 overflow-hidden border border-gray-200">
+                <img src="${imgUrl}" class="w-full h-full object-cover">
+            </div>
+            
+            <div class="flex-1 flex items-center min-w-0 px-2">
+                <h4 class="text-sm font-bold text-gray-800 leading-tight line-clamp-2">${p.name}</h4>
+            </div>
+
+            <div class="flex flex-col items-end gap-2 shrink-0">
+                <p class="font-bold text-brand-dark text-base">R$ ${(p.price * item.qty).toFixed(2).replace('.',',')}</p>
+                <div class="flex items-center bg-gray-50 rounded-lg border border-gray-200 h-7 shadow-sm">
+                    <button onclick="changeQty('${p.id}', -1)" class="w-7 h-full flex items-center justify-center ${minusColor} rounded-l-lg transition-colors focus:outline-none">
+                        <i data-lucide="${minusIcon}" class="w-3 h-3"></i>
+                    </button>
+                    <span class="w-6 text-center text-xs font-bold text-gray-700 select-none">${item.qty}</span>
+                    <button onclick="changeQty('${p.id}', 1)" class="w-7 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-r-lg transition-colors focus:outline-none">
+                        <i data-lucide="plus" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        c.appendChild(d);
+    });
+
+    document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2).replace('.',',')}`;
     
-    if (total >= goal) {
-        bar.classList.remove('bg-brand-DEFAULT');
-        bar.classList.add('bg-green-500');
-        status.innerHTML = "<span class='text-green-600'>PARABÉNS!</span>";
-    } else {
-        bar.classList.add('bg-brand-DEFAULT');
-        bar.classList.remove('bg-green-500');
-        const remaining = goal - total;
-        status.innerText = `Falta R$ ${remaining.toFixed(2).replace('.',',')}`;
+    const min = STORE_DATA.Frete_Minimo;
+    let pct = 0;
+    if (min > 0) {
+        pct = (total / min) * 100;
+        if (pct > 100) pct = 100;
+        if (pct < 0) pct = 0;
     }
     
-    lucide.createIcons();
+    const bar = document.getElementById('shipping-bar');
+    const status = document.getElementById('shipping-status');
+    
+    bar.style.width = `${pct}%`;
+    
+    if (total >= min) {
+        status.innerText = "FRETE GRÁTIS CONQUISTADO!";
+        status.classList.add('text-green-600');
+        status.classList.remove('text-gray-400');
+        bar.classList.add('bg-green-500');
+        bar.classList.remove('bg-brand'); 
+    } else {
+        const falta = min - total;
+        status.innerText = `Falta R$ ${falta.toFixed(2).replace('.',',')}`;
+        status.classList.remove('text-green-600');
+        status.classList.add('text-gray-400');
+        bar.classList.remove('bg-green-500');
+        bar.classList.add('bg-brand'); 
+    }
+
+    document.getElementById('btn-checkout').disabled = cart.length === 0;
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function checkoutWhatsApp() {
-    let msg = "*Olá! Pedido via Site Vivi Connect:*\n\n";
+    let msg = `*Pedido Vivi Connect*\n\n`; 
     let total = 0;
-    cart.forEach(i => {
-        msg += `• ${i.name} - R$ ${i.price.toFixed(2).replace('.',',')}\n`;
-        total += i.price;
+    cart.forEach(item => { 
+        const sub = item.product.price * item.qty;
+        total += sub;
+        msg += `• [${item.qty}x] ${item.product.name}\n   R$ ${sub.toFixed(2).replace('.',',')}\n`; 
     });
-    msg += `\n*Total Produtos: R$ ${total.toFixed(2).replace('.',',')}*`;
-    if(total >= 300) msg += "\n*Frete: GRÁTIS* (Compra acima de R$300) 🎉";
-    else msg += "\n_Frete a calcular_";
-    msg += "\n\nEndereço de Entrega: (Por favor preencher)";
-    window.open(`https://api.whatsapp.com/send?phone=5511933489947&text=${encodeURIComponent(msg)}`);
+    msg += `\n*Total: R$ ${total.toFixed(2).replace('.',',')}*`;
+    if (total >= STORE_DATA.Frete_Minimo) { msg += `\n✅ Frete Grátis Conquistado!`; }
+    window.open(`https://api.whatsapp.com/send?phone=${STORE_DATA.Whatsapp}&text=${encodeURIComponent(msg)}`);
 }

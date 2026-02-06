@@ -1,98 +1,84 @@
 /* =========================================
-   0. CONFIGURAÇÃO DE APP (NOVO)
+   ESTILOS GERAIS
    ========================================= */
 body {
     user-select: none;
     -webkit-user-select: none;
     cursor: default;
+    overflow-x: hidden;
 }
-input, textarea {
+
+input, textarea, select {
     user-select: text;
     -webkit-user-select: text;
-    cursor: text;
-}
-a, button, [role="button"] {
     cursor: pointer;
 }
 
 /* =========================================
-   2. SISTEMA DE LOGO (PADRONIZADO COM SHOWROOM)
+   ANIMAÇÕES
    ========================================= */
-.logo-wrapper {
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+.animate-slideUp { animation: slideUp 0.3s ease-out forwards; }
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.animate-slideDown { animation: slideDown 0.3s ease-out forwards; }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+
+/* =========================================
+   BOTÕES DE CATEGORIA (AJUSTE: PÍLULA E MENOR)
+   ========================================= */
+.cat-btn-standard {
+    /* Formato Pílula */
+    border-radius: 9999px; 
+    
+    /* Tamanho Reduzido */
+    padding: 3px 10px; 
     font-size: 10px; 
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; 
-    user-select: none;
-    overflow: visible;
-    line-height: 1;
-}
-
-.brand-sub {
-    font-size: 1.2em;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    
+    border: 1px solid #f3f4f6;
+    background-color: #f9fafb;
+    color: #9ca3af; /* Cinza mais claro para suavizar */
+    transition: all 0.2s ease;
     text-transform: uppercase;
-    color: var(--text-muted);
-    
-    margin-bottom: 0.65em; 
-    margin-left: 0.05em; 
-    
-    position: relative;
-    z-index: 25;
+    letter-spacing: 0.05em;
+    white-space: nowrap; /* Não quebra linha dentro do botão */
 }
 
-.brand-main {
-    font-size: 8em;
-    font-weight: 900;
-    letter-spacing: -0.06em;
-    color: #fff;
-    position: relative;
-    display: flex;
-    align-items: baseline;
-    line-height: 0.65;
-    z-index: 25;
+.cat-btn-standard:hover { 
+    border-color: #d946ef; 
+    color: #d946ef; 
 }
 
-.char-o-wrapper { 
-    position: relative; 
-    display: inline-block; 
-    margin-left: 0.02em; 
+/* Estado Ativo */
+.active-category-btn {
+    border-color: #86198f !important;
+    background-color: #86198f !important;
+    color: white !important;
 }
 
-.accent {
-    position: absolute;
-    top: -0.20em; 
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--accent);
-    font-size: 0.85em;
-    font-weight: 900;
-    z-index: 20; 
-    transition: top 0.3s ease, color 0.3s ease;
+/* Esconde barra de rolagem no modal mas permite scroll */
+#cart-items::-webkit-scrollbar, #menu-drawer nav::-webkit-scrollbar {
+    width: 4px;
 }
-
-.dot {
-    width: 0.15em; 
-    height: 0.15em;
-    background-color: var(--accent);
-    
-    /* PADRONIZAÇÃO SHOWROOM: REDONDO */
-    border-radius: 50%; 
-    
-    margin-left: 0.1em;
-    display: inline-block;
+#cart-items::-webkit-scrollbar-thumb {
+    background-color: #e5e7eb;
+    border-radius: 4px;
 }
-
-/* Hover */
-.logo-wrapper:hover .accent { 
-    top: -0.35em; 
-    color: #34d399; 
-    text-shadow: 0 0 20px var(--accent-glow); 
-}
-
-/* Classes de Tamanho */
-.size-hero { font-size: 12px; }   
-.size-footer { font-size: 6px; }  
-.size-nav { font-size: 5px; }
