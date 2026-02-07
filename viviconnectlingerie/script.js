@@ -7,7 +7,7 @@ const SITE_IDENTITY = {
 const API_URL = "https://script.google.com/macros/s/AKfycbwB_Prcy-ti2j2VLGZCijjGkenMd_Lzk7Vmwj7_eqc1vxFV9_Qz-pbUJ52Aka4oof1SEA/exec";
 
 const STORE_DATA = {
-    Whatsapp: "5511933489947",
+    Whatsapp: "551151998993",
     Frete_Minimo: 200, 
 };
 
