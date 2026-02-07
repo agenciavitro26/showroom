@@ -3,8 +3,8 @@ const SITE_IDENTITY = {
     NAME: "Vivi Connect - Lingerie & Sex Shop",
     COLOR: "#86198f", // Cor Escura da Barra
 };
-
-const API_URL = "https://script.google.com/macros/s/AKfycbwB_Prcy-ti2j2VLGZCijjGkenMd_Lzk7Vmwj7_eqc1vxFV9_Qz-pbUJ52Aka4oof1SEA/exec";
+const FILE_ID = "1-DhZk0infjsHAZxJfv8-2Li1xydn0UJk";
+const API_URL = "https://script.google.com/macros/s/AKfycbwVQhbi_iaFgR-BPUlCfXoTj4BIY1PvjNhpYx5CT7uZj9DCGcR_hkNOqOA7aUFVVR1_ug/exec";
 
 const STORE_DATA = {
     Whatsapp: "551151998993",
