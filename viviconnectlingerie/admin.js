@@ -2,6 +2,10 @@
 const PB_URL = "https://api.agenciavitro.com.br";
 const pb = new PocketBase(PB_URL);
 
+// Galeria: Array único de objetos
+let galleryItems = [];
+let initialExistingFiles = []; 
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -16,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- HELPER: Scroll Top ---
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
 }
 
 // --- HELPER: Colar da Área de Transferência ---
@@ -41,16 +46,12 @@ function showCustomModal({ title, msg, icon = 'info', input = false, confirmText
     const confirmBtn = document.getElementById('modal-confirm');
     const cancelBtn = document.getElementById('modal-cancel');
 
-    // Configurações Visuais
     titleEl.innerText = title;
     msgEl.innerText = msg;
     confirmBtn.innerText = confirmText;
     
-    // Ícone
-    // Se quiser lógica de ícone dinâmico, pode expandir. Por enquanto usa lucide classes
-    // Reset icon content if needed logic here, or just keep info.
-
-    // Input
+    iconEl.setAttribute('data-lucide', icon);
+    
     if (input) {
         inputEl.classList.remove('hidden');
         inputEl.value = '';
@@ -59,42 +60,38 @@ function showCustomModal({ title, msg, icon = 'info', input = false, confirmText
         inputEl.classList.add('hidden');
     }
 
-    // Mostrar
     overlay.classList.remove('hidden');
     setTimeout(() => {
         content.classList.remove('scale-90', 'opacity-0');
         content.classList.add('scale-100', 'opacity-100');
+        lucide.createIcons(); 
     }, 10);
 
-    // Ações
     const close = () => {
         content.classList.remove('scale-100', 'opacity-100');
         content.classList.add('scale-90', 'opacity-0');
         setTimeout(() => overlay.classList.add('hidden'), 200);
     };
 
-    // Remove listeners antigos (clone hack)
     const newConfirm = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
-    
     const newCancel = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
 
     newCancel.addEventListener('click', close);
-    
     newConfirm.addEventListener('click', () => {
-        if(input && !inputEl.value.trim()) return; // Validação simples
+        if(input && !inputEl.value.trim()) return; 
         const value = input ? inputEl.value.trim() : true;
         onConfirm(value);
         close();
     });
 }
 
-// Wrappers para substituir os nativos
 function requestLogout() {
     showCustomModal({
         title: "Sair do Painel",
         msg: "Tem certeza que deseja sair?",
+        icon: 'log-out',
         confirmText: "Sair",
         onConfirm: () => {
             pb.authStore.clear();
@@ -104,9 +101,11 @@ function requestLogout() {
 }
 
 function requestAddCategory() {
+    scrollToTop();
     showCustomModal({
         title: "Nova Categoria",
         msg: "Digite o nome da nova categoria:",
+        icon: 'folder-plus',
         input: true,
         confirmText: "Criar",
         onConfirm: async (nome) => {
@@ -123,10 +122,7 @@ function requestAddCategory() {
 // --- MÁSCARA DE DINHEIRO ---
 function formatMoneyInput(input) {
     let value = input.value.replace(/\D/g, "");
-    value = (Number(value) / 100).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
+    value = (Number(value) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     input.value = value;
 }
 
@@ -146,12 +142,9 @@ function checkAuth() {
     if (pb.authStore.isValid) {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard-screen').classList.remove('hidden');
-        
         const model = pb.authStore.model;
         const displayName = model.name ? model.name : (model.email ? model.email.split('@')[0] : 'Admin');
-        
         document.getElementById('user-name-display').innerText = displayName;
-        
         loadDashboard();
     } else {
         document.getElementById('login-screen').classList.remove('hidden');
@@ -164,7 +157,6 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
     const errorMsg = document.getElementById('login-error');
-    
     try {
         await pb.collection('users').authWithPassword(email, pass);
         checkAuth();
@@ -191,7 +183,7 @@ function switchTab(tab) {
     const activeBtn = document.getElementById(`nav-${tab}`);
     if(activeBtn) activeBtn.classList.add('active', 'text-brand-DEFAULT');
     
-    scrollToTop(); // Scroll para o topo
+    scrollToTop(); 
 
     if(tab === 'products') loadProducts();
     if(tab === 'categories') loadCategories();
@@ -214,9 +206,7 @@ async function loadSubscription() {
         
         if (result.items.length > 0) {
             const sub = result.items[0];
-            
             document.getElementById('sub-plan').innerText = sub.plano || 'Loja Vitrine';
-            
             const dateObj = new Date(sub.vencimento);
             document.getElementById('sub-date').innerText = dateObj.toLocaleDateString('pt-BR');
 
@@ -225,20 +215,26 @@ async function loadSubscription() {
             
             statusText.innerText = sub.status;
             
-            const isAtivo = sub.status === 'Ativo';
+            // Lógica de Cores e Ícones
+            let colorClass = "text-gray-500";
+            let bgClass = "bg-gray-100";
+            let iconName = "help-circle";
 
-            if (isAtivo) {
-                statusText.className = "font-bold text-lg text-green-600";
-                statusIcon.innerHTML = '<i data-lucide="check" class="text-green-600 w-6 h-6"></i>';
-                statusIcon.className = "w-10 h-10 rounded-full flex items-center justify-center bg-green-100";
+            if (sub.status === 'Ativo') {
+                colorClass = "text-green-600"; bgClass = "bg-green-100"; iconName = "check";
+            } else if (sub.status === 'Pendente') {
+                colorClass = "text-yellow-600"; bgClass = "bg-yellow-100"; iconName = "clock";
             } else {
-                statusText.className = "font-bold text-lg text-red-500";
-                statusIcon.innerHTML = '<i data-lucide="alert-circle" class="text-red-500 w-6 h-6"></i>';
-                statusIcon.className = "w-10 h-10 rounded-full flex items-center justify-center bg-red-100";
+                colorClass = "text-red-600"; bgClass = "bg-red-100"; iconName = "x-circle";
             }
+
+            statusText.className = `font-bold text-lg ${colorClass}`;
+            statusIcon.className = `w-10 h-10 rounded-full flex items-center justify-center ${bgClass}`;
+            statusIcon.innerHTML = `<i data-lucide="${iconName}" class="${colorClass} w-6 h-6"></i>`;
 
             const btnRecorrente = document.getElementById('btn-recorrente');
             const btnPix = document.getElementById('btn-pix');
+            const isAtivo = sub.status === 'Ativo';
             
             if(sub.link_recorrente) {
                 btnRecorrente.href = sub.link_recorrente;
@@ -254,11 +250,9 @@ async function loadSubscription() {
             } else {
                 btnPix.classList.add('hidden');
             }
-
         } else {
             document.getElementById('sub-status-text').innerText = "Não configurado";
         }
-        
     } catch (err) {
         console.log("Erro assinatura:", err);
     } finally {
@@ -275,10 +269,8 @@ async function loadCategories() {
     try {
         const list = await pb.collection('categorias').getFullList({ sort: 'nome' });
         allCategories = list;
-        
         const container = document.getElementById('categories-list');
         container.innerHTML = '';
-        
         const select = document.getElementById('prod-category');
         select.innerHTML = '<option value="">Selecione...</option>';
 
@@ -286,32 +278,22 @@ async function loadCategories() {
             const card = document.createElement('div');
             card.className = "bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center items-center cursor-pointer hover:border-brand-light hover:shadow-md transition-all h-32";
             card.onclick = () => openCategoryDetails(cat); 
-            
-            card.innerHTML = `
-                <span class="font-bold text-lg text-gray-800 text-center leading-tight line-clamp-2">${cat.nome}</span>
-            `;
+            card.innerHTML = `<span class="font-bold text-lg text-gray-800 text-center leading-tight line-clamp-2">${cat.nome}</span>`;
             container.appendChild(card);
-
             const opt = document.createElement('option');
-            opt.value = cat.id;
-            opt.innerText = cat.nome;
+            opt.value = cat.id; opt.innerText = cat.nome;
             select.appendChild(opt);
         });
-        
         lucide.createIcons();
     } catch (err) { console.error(err); }
 }
 
-// --- DETALHES DA CATEGORIA ---
 async function openCategoryDetails(cat) {
     document.getElementById('view-categories').classList.add('hidden');
     document.getElementById('view-category-detail').classList.remove('hidden');
-    
     document.getElementById('edit-cat-name').value = cat.nome;
     document.getElementById('edit-cat-id').value = cat.id;
-    
     document.getElementById('nav-categories').classList.remove('active', 'text-brand-DEFAULT');
-    
     scrollToTop();
 
     const container = document.getElementById('cat-products-list');
@@ -322,10 +304,8 @@ async function openCategoryDetails(cat) {
             filter: `categoria = "${cat.id}"`,
             sort: '-created'
         });
-        
         document.getElementById('cat-product-count').innerText = `${products.items.length} produto(s)`;
         renderProductList(products.items, container);
-        
     } catch(e) {
         container.innerHTML = '<p class="text-red-500 text-xs">Erro ao carregar produtos.</p>';
     }
@@ -344,16 +324,15 @@ async function updateCategoryName() {
 async function deleteCategorySafe() {
     const id = document.getElementById('edit-cat-id').value;
     const countText = document.getElementById('cat-product-count').innerText;
-    
     if(!countText.startsWith("0")) {
-        showCustomModal({ title: "Atenção", msg: "Esta categoria possui produtos. Remova-os antes de excluir." });
+        showCustomModal({ title: "Atenção", msg: "Esta categoria possui produtos. Remova-os antes de excluir.", icon: 'alert-triangle' });
         return;
     }
-    
     showCustomModal({
         title: "Excluir Categoria",
         msg: "Tem certeza que deseja apagar esta categoria?",
         confirmText: "Excluir",
+        icon: 'trash-2',
         onConfirm: async () => {
             try {
                 await pb.collection('categorias').delete(id);
@@ -363,12 +342,10 @@ async function deleteCategorySafe() {
     });
 }
 
-
 // --- PRODUTOS ---
 async function loadProducts() {
     const container = document.getElementById('products-list');
     container.innerHTML = '<div class="text-center py-10"><div class="loader mx-auto"></div></div>';
-
     try {
         const records = await pb.collection('produtos').getList(1, 50, { sort: '-created', expand: 'categoria' });
         renderProductList(records.items, container);
@@ -377,15 +354,12 @@ async function loadProducts() {
 
 function renderProductList(items, containerElement) {
     containerElement.innerHTML = '';
-    
     if(items.length === 0) {
         containerElement.innerHTML = '<p class="text-center text-gray-400 py-10 text-sm">Nenhum produto aqui.</p>';
         return;
     }
-
     items.forEach(p => {
         const img = p.foto_capa ? `${PB_URL}/api/files/${p.collectionId}/${p.id}/${p.foto_capa}?thumb=100x100` : 'https://placehold.co/100';
-        
         const isPromo = p.preco_de > 0;
         const priceDisplay = isPromo 
             ? `<span class="line-through text-gray-400 text-[10px]">R$ ${p.preco_de.toFixed(2).replace('.',',')}</span> <span class="text-brand-dark">R$ ${p.preco_por.toFixed(2).replace('.',',')}</span>`
@@ -416,15 +390,18 @@ function renderProductList(items, containerElement) {
     lucide.createIcons();
 }
 
-// --- MODAL DE PRODUTO ---
+// --- MODAL DE PRODUTO & GALERIA ---
 function openProductModal(productData = null, preSelectedCatId = null) {
+    scrollToTop();
     const form = document.getElementById('product-form');
     form.reset();
     document.getElementById('preview-cover').classList.add('hidden');
     document.getElementById('btn-delete-prod').classList.add('hidden');
-    
     document.getElementById('prod-price-original').value = "";
     document.getElementById('prod-price-promo').value = "";
+
+    galleryItems = [];
+    initialExistingFiles = [];
 
     const modal = document.getElementById('product-modal');
     modal.classList.remove('hidden');
@@ -446,7 +423,7 @@ function editProduct(p) {
         modal.classList.remove('hidden');
         modal.classList.remove('translate-y-full');
     }
-
+    scrollToTop();
     document.getElementById('modal-title').innerText = "Editar Produto";
     document.getElementById('prod-id').value = p.id;
     document.getElementById('prod-title').value = p.titulo;
@@ -470,13 +447,17 @@ function editProduct(p) {
         img.classList.remove('hidden');
     }
 
+    if(p.galeria) {
+        initialExistingFiles = [...p.galeria];
+        galleryItems = p.galeria.map(filename => ({ type: 'existing', value: filename }));
+    }
+
     document.getElementById('btn-delete-prod').classList.remove('hidden');
     document.getElementById('btn-save').innerHTML = "<span>Atualizar Produto</span>";
 }
 
 function closeProductModal() {
-    const modal = document.getElementById('product-modal');
-    modal.classList.add('hidden');
+    document.getElementById('product-modal').classList.add('hidden');
 }
 
 function previewImage(input, imgId) {
@@ -491,6 +472,190 @@ function previewImage(input, imgId) {
     }
 }
 
+// --- GERENCIADOR DE GALERIA ---
+function openGalleryManager() {
+    document.getElementById('gallery-manager').classList.remove('hidden');
+    renderGalleryGrid();
+}
+
+function closeGalleryManager() {
+    document.getElementById('gallery-manager').classList.add('hidden');
+}
+
+function handleGallerySelect(input) {
+    if(input.files && input.files.length > 0) {
+        Array.from(input.files).forEach(file => {
+            galleryItems.push({ type: 'new', value: file });
+        });
+    }
+    input.value = ""; 
+    renderGalleryGrid();
+}
+
+function removePhoto(index) {
+    galleryItems.splice(index, 1);
+    renderGalleryGrid();
+}
+
+function renderGalleryGrid() {
+    const grid = document.getElementById('gallery-grid');
+    grid.innerHTML = '';
+    const pid = document.getElementById('prod-id').value;
+
+    galleryItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "relative aspect-square bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group cursor-move select-none";
+        div.setAttribute('data-index', index);
+        
+        let src = '';
+        if(item.type === 'existing') {
+            src = `${PB_URL}/api/files/produtos/${pid}/${item.value}?thumb=100x100`;
+            div.innerHTML = `<img src="${src}" class="w-full h-full object-cover pointer-events-none">`;
+        } else {
+             const reader = new FileReader();
+             reader.onload = (e) => {
+                 div.style.backgroundImage = `url(${e.target.result})`;
+                 div.style.backgroundSize = 'cover';
+                 div.style.backgroundPosition = 'center';
+             };
+             reader.readAsDataURL(item.value);
+             div.innerHTML = `<span class="absolute bottom-1 left-1 bg-brand-dark text-white text-[9px] px-1.5 rounded font-bold pointer-events-none">NOVA</span>`;
+        }
+
+        const delBtn = document.createElement('button');
+        delBtn.className = "absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-md opacity-90 hover:opacity-100 z-10 cursor-pointer";
+        delBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+        delBtn.onclick = (e) => { e.stopPropagation(); removePhoto(index); };
+        div.appendChild(delBtn);
+
+        // Desktop Events
+        div.setAttribute('draggable', 'true');
+        div.addEventListener('dragstart', handleDragStart);
+        div.addEventListener('dragover', handleDragOver);
+        div.addEventListener('drop', handleDrop);
+        div.addEventListener('dragenter', handleDragEnter);
+        div.addEventListener('dragleave', handleDragLeave);
+
+        // Mobile Touch Events (com Fantasma)
+        div.addEventListener('touchstart', handleTouchStart, {passive: false});
+
+        grid.appendChild(div);
+    });
+
+    lucide.createIcons();
+}
+
+// --- DRAG & DROP LOGIC (DESKTOP) ---
+let dragSrcIndex = null;
+
+function handleDragStart(e) {
+    dragSrcIndex = this.getAttribute('data-index');
+    this.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+}
+function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+function handleDragEnter(e) { this.classList.add('border-brand-DEFAULT', 'border-2'); }
+function handleDragLeave(e) { this.classList.remove('border-brand-DEFAULT', 'border-2'); }
+function handleDrop(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    const dropIndex = this.getAttribute('data-index');
+    if (dragSrcIndex !== dropIndex) {
+        const draggedItem = galleryItems[dragSrcIndex];
+        galleryItems.splice(dragSrcIndex, 1);
+        galleryItems.splice(dropIndex, 0, draggedItem);
+        renderGalleryGrid();
+    }
+    return false;
+}
+
+// --- MOBILE TOUCH LOGIC (COM FANTASMA) ---
+let ghostEl = null;
+
+function handleTouchStart(e) {
+    e.preventDefault(); 
+    dragSrcIndex = this.getAttribute('data-index');
+    const touch = e.touches[0];
+    
+    // Criar Fantasma
+    const rect = this.getBoundingClientRect();
+    ghostEl = this.cloneNode(true);
+    ghostEl.style.position = 'fixed';
+    ghostEl.style.width = `${rect.width}px`;
+    ghostEl.style.height = `${rect.height}px`;
+    ghostEl.style.top = `${rect.top}px`;
+    ghostEl.style.left = `${rect.left}px`;
+    ghostEl.style.zIndex = '1000';
+    ghostEl.style.opacity = '0.8';
+    ghostEl.style.pointerEvents = 'none'; // Importante para não bloquear elementFromPoint
+    ghostEl.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    ghostEl.style.transform = 'scale(1.05)';
+    ghostEl.classList.remove('border-gray-200');
+    ghostEl.classList.add('border-brand-DEFAULT', 'border-2');
+    
+    document.body.appendChild(ghostEl);
+    
+    // Opacidade no original
+    this.style.opacity = '0.3';
+    
+    // Bind global move events
+    document.addEventListener('touchmove', handleGlobalTouchMove, {passive: false});
+    document.addEventListener('touchend', handleGlobalTouchEnd);
+}
+
+function handleGlobalTouchMove(e) {
+    e.preventDefault();
+    if (!ghostEl) return;
+    
+    const touch = e.touches[0];
+    
+    // Mover Fantasma (Centralizado no dedo)
+    const w = ghostEl.offsetWidth;
+    const h = ghostEl.offsetHeight;
+    ghostEl.style.left = `${touch.clientX - w/2}px`;
+    ghostEl.style.top = `${touch.clientY - h/2}px`;
+
+    // Detectar Alvo por baixo
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    if (target && target.closest('[data-index]')) {
+        const dropTarget = target.closest('[data-index]');
+        const dropIndex = dropTarget.getAttribute('data-index');
+        
+        if (dropIndex !== dragSrcIndex) {
+            // Realizar troca
+            const draggedItem = galleryItems[dragSrcIndex];
+            galleryItems.splice(dragSrcIndex, 1);
+            galleryItems.splice(dropIndex, 0, draggedItem);
+            
+            // Atualizar índice de origem para a nova posição
+            dragSrcIndex = dropIndex;
+            
+            // Re-renderizar (Isso remove o elemento original, mas o fantasma continua no body)
+            renderGalleryGrid();
+            
+            // Manter opacidade no novo elemento que está "sendo arrastado"
+            const newOriginal = document.querySelector(`[data-index="${dragSrcIndex}"]`);
+            if(newOriginal) newOriginal.style.opacity = '0.3';
+        }
+    }
+}
+
+function handleGlobalTouchEnd(e) {
+    // Limpar eventos e fantasma
+    document.removeEventListener('touchmove', handleGlobalTouchMove);
+    document.removeEventListener('touchend', handleGlobalTouchEnd);
+    
+    if(ghostEl) {
+        ghostEl.remove();
+        ghostEl = null;
+    }
+    
+    // Restaurar opacidade e grid limpo
+    renderGalleryGrid();
+}
+
+
+// --- SAVE ---
 async function saveProduct() {
     const btn = document.getElementById('btn-save');
     const originalText = btn.innerHTML;
@@ -499,11 +664,9 @@ async function saveProduct() {
 
     try {
         const id = document.getElementById('prod-id').value;
-        
         const inputOriginal = parseMoneyToFloat(document.getElementById('prod-price-original').value);
         const inputPromoStr = document.getElementById('prod-price-promo').value;
         const inputPromo = inputPromoStr ? parseMoneyToFloat(inputPromoStr) : null;
-        
         let dbPrecoDe = 0;
         let dbPrecoPor = inputOriginal;
 
@@ -527,34 +690,37 @@ async function saveProduct() {
             formData.append('foto_capa', fileInput.files[0]);
         }
 
-        const galleryInput = document.getElementById('prod-gallery');
-        if(galleryInput.files.length > 0) {
-            for (let i = 0; i < galleryInput.files.length; i++) {
-                formData.append('galeria', galleryInput.files[i]);
-            }
-        }
-
         if(!document.getElementById('prod-title').value || !inputOriginal) {
             throw new Error("Preencha Nome e Preço Original!");
         }
 
         if (id) {
+            const currentExisting = galleryItems.filter(i => i.type === 'existing').map(i => i.value);
+            const toDelete = initialExistingFiles.filter(filename => !currentExisting.includes(filename));
+            
+            toDelete.forEach(filename => formData.append('galeria-', filename));
+
+            galleryItems.forEach(item => {
+                if(item.type === 'new') formData.append('galeria', item.value);
+            });
+
             await pb.collection('produtos').update(id, formData);
         } else {
+             galleryItems.forEach(item => {
+                if(item.type === 'new') formData.append('galeria', item.value);
+            });
             await pb.collection('produtos').create(formData);
         }
         
         closeProductModal();
-        
         if(!document.getElementById('view-category-detail').classList.contains('hidden')) {
              const catId = document.getElementById('edit-cat-id').value;
              openCategoryDetails({id: catId, nome: document.getElementById('edit-cat-name').value}); 
         } else {
              loadProducts();
         }
-
     } catch (err) {
-        showCustomModal({ title: "Erro", msg: err.message, confirmText: "Ok" });
+        showCustomModal({ title: "Erro", msg: err.message, confirmText: "Ok", icon: 'alert-triangle' });
     } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
@@ -564,16 +730,15 @@ async function saveProduct() {
 async function deleteProductFromModal() {
     const id = document.getElementById('prod-id').value;
     if(!id) return;
-
     showCustomModal({
         title: "Excluir Produto",
         msg: "Tem certeza que deseja apagar este produto permanentemente?",
         confirmText: "Excluir",
+        icon: 'trash-2',
         onConfirm: async () => {
             try {
                 await pb.collection('produtos').delete(id);
                 closeProductModal();
-                
                 if(!document.getElementById('view-category-detail').classList.contains('hidden')) {
                     const catId = document.getElementById('edit-cat-id').value;
                     openCategoryDetails({id: catId, nome: document.getElementById('edit-cat-name').value}); 

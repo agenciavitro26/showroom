@@ -66,17 +66,20 @@
             <h2 class="font-serif text-xl font-bold text-brand-deep">Vivi Connect</h2>
         </div>
         <nav class="flex-1 p-6 space-y-6 overflow-y-auto">
-            <a onclick="navigateTo('home')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="home" class="w-5 h-5"></i> Início</a>
+            <a onclick="navigateTo('home')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="store" class="w-5 h-5"></i> Início</a>
             <a onclick="navigateTo('about')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="heart" class="w-5 h-5"></i> A Loja</a>
             <a onclick="navigateTo('delivery')" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="truck" class="w-5 h-5"></i> Entregas</a>
-            <a onclick="checkoutWhatsApp()" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="message-circle" class="w-5 h-5"></i> Fale Conosco</a>
+            <a onclick="checkoutWhatsApp()" class="flex items-center gap-3 text-lg font-medium text-gray-600 hover:text-brand-DEFAULT cursor-pointer"><i data-lucide="message-circle" class="w-5 h-5"></i> Contato</a>
+            
+            <hr class="border-gray-100 my-4">
+            
+            <a href="admin.html" class="flex items-center gap-3 text-lg font-medium text-brand-dark hover:text-brand-deep cursor-pointer bg-brand-light/30 p-3 rounded-xl">
+                <i data-lucide="lock" class="w-5 h-5"></i> Área Administrativa
+            </a>
         </nav>
         
         <div class="p-6 bg-gray-50 text-xs text-gray-400 text-center flex flex-col items-center gap-2">
             <p>Av. Salgado Filho 3530, Guarulhos - SP</p>
-            <a href="admin.html" class="opacity-20 hover:opacity-100 hover:text-brand-dark transition-all p-2" title="Acesso Restrito">
-                <i data-lucide="lock" class="w-3 h-3"></i>
-            </a>
         </div>
     </div>
 
@@ -110,9 +113,10 @@
                     </div>
 
                     <div class="bg-brand-light rounded-3xl p-1.5 flex flex-wrap justify-center gap-2 mx-auto max-w-md shadow-inner mb-2">
-                        <button id="tab-home" onclick="navigateTo('home')" class="flex-1 px-4 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-brand-dark text-white shadow-md transition transform active:scale-95 text-center nav-tab">Início</button>
-                        <button id="tab-about" onclick="navigateTo('about')" class="flex-1 px-4 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-white/50 text-brand-dark hover:bg-white transition transform active:scale-95 text-center nav-tab">A Loja</button>
-                        <button id="tab-delivery" onclick="navigateTo('delivery')" class="flex-1 px-4 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-white/50 text-brand-dark hover:bg-white transition transform active:scale-95 text-center nav-tab">Entregas</button>
+                        <button id="tab-home" onclick="navigateTo('home')" class="flex-1 px-3 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-brand-dark text-white shadow-md transition transform active:scale-95 text-center nav-tab">Início</button>
+                        <button id="tab-about" onclick="navigateTo('about')" class="flex-1 px-3 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-white/50 text-brand-dark hover:bg-white transition transform active:scale-95 text-center nav-tab">A Loja</button>
+                        <button id="tab-delivery" onclick="navigateTo('delivery')" class="flex-1 px-3 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-white/50 text-brand-dark hover:bg-white transition transform active:scale-95 text-center nav-tab">Entregas</button>
+                        <button onclick="checkoutWhatsApp()" class="flex-1 px-3 py-1.5 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-wide bg-white/50 text-brand-dark hover:bg-white hover:text-brand-deep transition transform active:scale-95 text-center shadow-sm">Contato</button>
                     </div>
 
                     <div id="cats-wrapper" class="overflow-x-auto pb-1 pt-1 scrollbar-hide">
@@ -240,6 +244,7 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="../script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if(typeof initVitroFooter === 'function') {

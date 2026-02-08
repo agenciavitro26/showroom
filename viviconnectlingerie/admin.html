@@ -77,6 +77,9 @@
                 <span class="font-serif font-bold text-brand-deep text-lg">Painel</span>
             </div>
             <div class="flex items-center gap-3">
+                <a href="index.html" target="_blank" class="text-gray-400 hover:text-brand-dark transition-colors p-2 bg-gray-50 rounded-full" title="Ir para o Site">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                </a>
                 <span id="user-name-display" class="text-xs font-bold text-brand-deep uppercase tracking-wider"></span>
                 <button onclick="requestLogout()" class="text-gray-400 hover:text-red-500 transition-colors p-2 bg-gray-50 rounded-full">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -214,7 +217,6 @@
                         <i data-lucide="trash-2" class="w-6 h-6"></i>
                     </button>
                     <button onclick="openProductModal(null, document.getElementById('edit-cat-id').value)" class="bg-brand-dark text-white flex-1 py-3 px-6 rounded-xl font-bold shadow-lg shadow-brand-light flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                        <i data-lucide="plus" class="w-5 h-5"></i>
                         Adicionar Produto Aqui
                     </button>
                 </div>
@@ -224,8 +226,8 @@
 
         <nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 flex justify-around items-center py-3 pb-6 px-2 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.03)]">
             <button onclick="switchTab('home')" id="nav-home" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16 group">
-                <i data-lucide="home" class="w-6 h-6 transition-colors group-hover:text-brand-DEFAULT"></i>
-                <span class="text-[10px] font-bold">Início</span>
+                <i data-lucide="layout-dashboard" class="w-6 h-6 transition-colors group-hover:text-brand-DEFAULT"></i>
+                <span class="text-[10px] font-bold">Painel</span>
             </button>
             <button onclick="switchTab('products')" id="nav-products" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16 group">
                 <i data-lucide="package" class="w-6 h-6 transition-colors group-hover:text-brand-DEFAULT"></i>
@@ -249,15 +251,18 @@
             <form id="product-form" class="space-y-5">
                 <input type="hidden" id="prod-id">
                 
-                <div class="flex justify-center">
-                    <label class="relative w-32 h-32 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-brand-DEFAULT transition-colors group">
-                        <img id="preview-cover" class="absolute inset-0 w-full h-full object-cover hidden">
-                        <div class="text-center text-gray-400 p-2 group-hover:text-brand-dark transition-colors">
-                            <i data-lucide="camera" class="w-8 h-8 mx-auto mb-1"></i>
-                            <span class="text-[10px] uppercase font-bold">Capa</span>
-                        </div>
-                        <input type="file" id="prod-cover" accept="image/*" class="hidden" onchange="previewImage(this, 'preview-cover')">
-                    </label>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Capa do Produto</label>
+                    <div class="flex justify-center">
+                        <label class="relative w-32 h-32 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-brand-DEFAULT transition-colors group">
+                            <img id="preview-cover" class="absolute inset-0 w-full h-full object-cover hidden">
+                            <div class="text-center text-gray-400 p-2 group-hover:text-brand-dark transition-colors">
+                                <i data-lucide="camera" class="w-8 h-8 mx-auto mb-1"></i>
+                                <span class="text-[10px] uppercase font-bold">Alterar</span>
+                            </div>
+                            <input type="file" id="prod-cover" accept="image/*" class="hidden" onchange="previewImage(this, 'preview-cover')">
+                        </label>
+                    </div>
                 </div>
 
                 <div class="space-y-4">
@@ -308,8 +313,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Fotos Extras (Galeria)</label>
-                        <input type="file" id="prod-gallery" multiple accept="image/*" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-brand-light file:text-brand-deep hover:file:bg-brand-light/80">
+                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Galeria de Fotos</label>
+                         <button type="button" onclick="openGalleryManager()" class="w-full bg-gray-100 text-gray-600 font-bold py-3 rounded-xl border border-dashed border-gray-300 hover:bg-gray-200 hover:border-gray-400 transition-colors flex items-center justify-center gap-2">
+                             <i data-lucide="images" class="w-5 h-5"></i>
+                             Gerenciar Fotos
+                         </button>
+                         <p class="text-[10px] text-gray-400 mt-1 text-center">Adicione, remova e organize fotos extras.</p>
                     </div>
 
                     <div>
@@ -337,13 +346,36 @@
         </div>
     </div>
 
+    <div id="gallery-manager" class="fixed inset-0 z-[60] bg-white hidden flex flex-col animate-slideUp">
+         <div class="p-4 border-b flex justify-between items-center bg-white sticky top-0 z-10 shadow-sm">
+            <h3 class="font-serif font-bold text-brand-deep text-lg">Gerenciar Fotos</h3>
+            <button onclick="closeGalleryManager()" class="text-gray-400 p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-4 pb-24 bg-[#f9fafb]">
+            <p class="text-xs text-gray-400 text-center mb-4">Arraste para reorganizar.</p>
+            <div id="gallery-grid" class="grid grid-cols-2 gap-3">
+                 </div>
+            <input type="file" id="gallery-upload-input" multiple accept="image/*" class="hidden" onchange="handleGallerySelect(this)">
+        </div>
+
+        <div class="p-4 border-t bg-white absolute bottom-0 left-0 w-full flex gap-3 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-20">
+            <button onclick="document.getElementById('gallery-upload-input').click()" class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl flex-1 font-bold hover:bg-gray-200 transition-colors">
+                Adicionar Foto
+            </button>
+            <button onclick="closeGalleryManager()" class="bg-brand-dark text-white px-6 py-3 rounded-xl w-auto font-bold shadow-lg shadow-brand-light hover:opacity-90">
+                Pronto
+            </button>
+        </div>
+    </div>
+
     <div id="custom-modal-overlay" class="fixed inset-0 z-[100] bg-black/60 hidden flex items-center justify-center p-4">
         <div id="custom-modal-content" class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform scale-90 opacity-0 transition-all duration-200">
             <div class="p-6 text-center">
                 <div class="w-16 h-16 bg-brand-light rounded-full flex items-center justify-center mx-auto mb-4 text-brand-dark">
                     <i data-lucide="info" id="modal-icon" class="w-8 h-8"></i>
                 </div>
-                <h3 id="modal-title" class="font-serif font-bold text-xl text-brand-deep mb-2">Título</h3>
+                <h3 id="modal-title" class="font-serif font-bold text-xl text-brand-deep mb-2"></h3>
                 <p id="modal-msg" class="text-gray-500 text-sm mb-4">Mensagem</p>
                 
                 <input type="text" id="modal-input" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand-DEFAULT mb-4 hidden bg-gray-50 text-center font-bold">

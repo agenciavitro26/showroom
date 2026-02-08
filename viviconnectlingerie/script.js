@@ -228,14 +228,22 @@ function navigateTo(viewId) {
     currentView = viewId;
     
     const tabs = ['home', 'about', 'delivery'];
+    
     tabs.forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const section = document.getElementById(`view-${t}`);
+        
         if (t === viewId) {
-            if(btn) { btn.classList.remove('bg-white/50', 'text-brand-dark', 'hover:bg-white'); btn.classList.add('bg-brand-dark', 'text-white'); }
+            if(btn) { 
+                btn.classList.remove('bg-white/50', 'text-brand-dark', 'hover:bg-white'); 
+                btn.classList.add('bg-brand-dark', 'text-white');
+            }
             if(section) section.classList.remove('hidden');
         } else {
-            if(btn) { btn.classList.add('bg-white/50', 'text-brand-dark', 'hover:bg-white'); btn.classList.remove('bg-brand-dark', 'text-white'); }
+            if(btn) { 
+                btn.classList.add('bg-white/50', 'text-brand-dark', 'hover:bg-white'); 
+                btn.classList.remove('bg-brand-dark', 'text-white'); 
+            }
             if(section) section.classList.add('hidden');
         }
     });
