@@ -39,8 +39,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
+    <style>
+        body { padding-bottom: 90px; }
+        .nav-item.active { color: #d946ef; }
+        .nav-item.active i { fill: #fde3fc; }
+        
+        /* Toggle Switch CSS */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #d946ef;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #d946ef;
+        }
+        .toggle-checkbox:checked + .toggle-label:before {
+            transform: translateX(100%);
+        }
+
+        /* Forçar cor dos botões de ação */
+        .btn-action-force {
+            background-color: #d946ef !important;
+            color: white !important;
+        }
+        .btn-action-force:active {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
-<body class="font-sans text-gray-800 bg-[#f9fafb] min-h-screen pb-20">
+<body class="font-sans text-gray-800 bg-[#f9fafb] min-h-screen">
 
     <div id="login-screen" class="fixed inset-0 z-50 bg-brand-light/30 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-8 border border-white/50 animate-fadeInUp">
@@ -76,25 +102,100 @@
                 <img src="./assets/logo.png" class="w-8 h-8 rounded-full border border-gray-100">
                 <span class="font-serif font-bold text-brand-deep text-lg">Painel</span>
             </div>
-            <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition-colors p-2">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-            </button>
+            <div class="flex items-center gap-3">
+                <span id="user-name-display" class="text-xs font-bold text-brand-deep uppercase tracking-wider"></span>
+                <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition-colors p-2 bg-gray-50 rounded-full">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
         </header>
 
         <main class="container mx-auto max-w-2xl p-4 space-y-6">
             
-            <div class="bg-gray-100 p-1 rounded-xl flex gap-1">
-                <button onclick="switchTab('products')" id="tab-btn-products" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-white text-brand-dark shadow-sm">Produtos</button>
-                <button onclick="switchTab('categories')" id="tab-btn-categories" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-gray-500 hover:bg-white/50">Categorias</button>
+            <div id="view-home" class="space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i data-lucide="credit-card" class="w-24 h-24 text-brand-dark"></i>
+                    </div>
+                    
+                    <h2 class="text-lg font-serif font-bold text-gray-800 mb-4">Minha Assinatura</h2>
+                    
+                    <div id="sub-loading" class="text-center py-4"><div class="loader mx-auto"></div></div>
+                    
+                    <div id="sub-content" class="hidden space-y-4 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div id="sub-status-icon" class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100"></div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-bold">Status Atual</p>
+                                <p id="sub-status-text" class="font-bold text-lg">--</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 pt-2">
+                            <div class="bg-gray-50 p-3 rounded-xl">
+                                <p class="text-[10px] text-gray-400 uppercase font-bold">Plano</p>
+                                <p id="sub-plan" class="font-bold text-gray-700 text-sm">--</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-xl">
+                                <p class="text-[10px] text-gray-400 uppercase font-bold">Vencimento</p>
+                                <p id="sub-date" class="font-bold text-gray-700 text-sm">--</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <a id="btn-recorrente" href="#" target="_blank" class="hidden w-full bg-brand-dark hover:bg-brand-deep text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg">
+                                <i data-lucide="credit-card" class="w-5 h-5"></i>
+                                <span id="txt-recorrente">Gerenciar Assinatura</span>
+                            </a>
+                            <a id="btn-pix" href="#" target="_blank" class="hidden w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-green-200 shadow-lg">
+                                <i data-lucide="qr-code" class="w-5 h-5"></i>
+                                Pagar Fatura (PIX)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-vitro-dark text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
+                     <div class="absolute -right-5 -bottom-5 w-48 h-48 opacity-10 pointer-events-none transform -rotate-12">
+                        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="text-white">
+                            <path d="M20,20 L50,90 L80,20" />
+                            <circle cx="50" cy="50" r="45" stroke-dasharray="10,5" />
+                        </svg>
+                     </div>
+
+                     <h3 class="font-bold text-lg mb-1 relative z-10">Suporte Agência Vitrô</h3>
+                     <p class="text-gray-400 text-xs mb-6 max-w-[80%] relative z-10">Precisa de ajuda com o painel ou quer evoluir seu site? Fale conosco.</p>
+                     
+                     <div class="space-y-3 relative z-10">
+                         <a href="https://wa.me/551151998993" target="_blank" class="flex items-center gap-3 bg-white/10 p-3 rounded-xl hover:bg-white/20 transition-colors border border-white/5">
+                             <div class="bg-[#25D366] p-1.5 rounded-lg text-white">
+                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                             </div>
+                             <div class="flex-1">
+                                 <p class="text-xs text-gray-400 font-bold">WhatsApp</p>
+                                 <p class="text-sm font-bold">+55 11 5199-8993</p>
+                             </div>
+                         </a>
+                         <a href="mailto:contato@agenciavitro.com.br" class="flex items-center gap-3 bg-white/10 p-3 rounded-xl hover:bg-white/20 transition-colors border border-white/5">
+                            <div class="bg-blue-500 p-1.5 rounded-lg text-white">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs text-gray-400 font-bold">Email</p>
+                                <p class="text-sm font-bold">contato@agenciavitro.com.br</p>
+                            </div>
+                        </a>
+                     </div>
+                </div>
             </div>
 
-            <div id="view-products" class="space-y-4">
-                <button onclick="openProductModal()" class="w-full border-2 border-dashed border-brand-light bg-brand-light/20 text-brand-dark rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-brand-light/30 transition-colors group">
-                    <div class="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform">
-                        <i data-lucide="plus" class="w-6 h-6 text-brand-DEFAULT"></i>
-                    </div>
-                    <span class="font-bold text-sm">Adicionar Novo Produto</span>
-                </button>
+            <div id="view-products" class="hidden space-y-4">
+                <div class="flex justify-between items-center px-2">
+                    <h2 class="font-serif font-bold text-2xl text-brand-dark">Produtos</h2>
+                    <button onclick="openProductModal()" class="btn-action-force w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
+                        <i data-lucide="plus" class="w-7 h-7"></i>
+                    </button>
+                </div>
 
                 <div id="products-list" class="space-y-3 pb-20">
                     <div class="text-center py-10 text-gray-400">
@@ -105,32 +206,84 @@
             </div>
 
             <div id="view-categories" class="hidden space-y-4">
-                <div class="admin-card flex gap-2">
-                    <input type="text" id="new-cat-name" placeholder="Nova Categoria..." class="input-field flex-1 py-2">
-                    <button onclick="addCategory()" class="bg-brand-dark text-white px-4 rounded-lg font-bold shadow-md active:scale-95"><i data-lucide="plus"></i></button>
+                <div class="flex justify-between items-center px-2">
+                    <h2 class="font-serif font-bold text-2xl text-brand-dark">Categorias</h2>
+                    <button onclick="promptAddCategory()" class="btn-action-force w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
+                        <i data-lucide="plus" class="w-7 h-7"></i>
+                    </button>
                 </div>
 
-                <div id="categories-list" class="grid grid-cols-2 gap-3">
+                <div id="categories-list" class="grid grid-cols-2 gap-3 pb-20">
                     </div>
             </div>
 
+            <div id="view-category-detail" class="hidden space-y-4 pb-32">
+                <button onclick="switchTab('categories')" class="text-xs font-bold text-gray-500 flex items-center gap-1 hover:text-brand-dark mb-4">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar
+                </button>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Editar Nome</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="edit-cat-name" class="input-field font-bold text-lg text-brand-deep">
+                        <input type="hidden" id="edit-cat-id">
+                        <button onclick="updateCategoryName()" class="bg-gray-100 text-gray-600 p-3 rounded-lg hover:bg-brand-dark hover:text-white transition-colors">
+                            <i data-lucide="save" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-6 mb-2 px-2">
+                    <h3 class="font-serif font-bold text-gray-700">Produtos nesta categoria</h3>
+                    <span class="text-xs text-gray-400" id="cat-product-count">0 produtos</span>
+                </div>
+
+                <div id="cat-products-list" class="space-y-3"></div>
+
+                <div class="fixed bottom-[70px] left-0 w-full bg-white border-t border-gray-100 p-4 flex gap-3 z-30 justify-center">
+                     <button onclick="deleteCategorySafe()" class="bg-red-50 text-red-500 p-4 rounded-xl flex items-center justify-center transition-colors hover:bg-red-100 border border-red-100">
+                        <i data-lucide="trash-2" class="w-6 h-6"></i>
+                    </button>
+                    <button onclick="openProductModal(null, document.getElementById('edit-cat-id').value)" class="bg-brand-dark text-white flex-1 py-3 px-6 rounded-xl font-bold shadow-lg shadow-brand-light flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        Adicionar Produto Aqui
+                    </button>
+                </div>
+            </div>
+
         </main>
+
+        <nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 flex justify-around items-center py-3 pb-6 px-2 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.03)]">
+            <button onclick="switchTab('home')" id="nav-home" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16 group">
+                <i data-lucide="home" class="w-6 h-6 transition-colors group-hover:text-brand-DEFAULT"></i>
+                <span class="text-[10px] font-bold">Início</span>
+            </button>
+            <button onclick="switchTab('products')" id="nav-products" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16 group">
+                <i data-lucide="package" class="w-6 h-6 transition-colors group-hover:text-brand-DEFAULT"></i>
+                <span class="text-[10px] font-bold">Produtos</span>
+            </button>
+            <button onclick="switchTab('categories')" id="nav-categories" class="nav-item flex flex-col items-center gap-1 text-gray-400 w-16 group">
+                <i data-lucide="layers" class="w-6 h-6 transition-colors group-hover:text-brand-DEFAULT"></i>
+                <span class="text-[10px] font-bold">Categorias</span>
+            </button>
+        </nav>
     </div>
 
     <div id="product-modal" class="fixed inset-0 z-50 bg-white hidden flex flex-col animate-slideUp">
-        <div class="p-4 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+        <div class="p-4 border-b flex justify-between items-center bg-white sticky top-0 z-10 shadow-sm">
             <button onclick="closeProductModal()" class="text-gray-400 p-2"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
             <h3 class="font-serif font-bold text-brand-deep text-lg" id="modal-title">Novo Produto</h3>
-            <div class="w-10"></div> </div>
+            <div class="w-10"></div> 
+        </div>
         
         <div class="flex-1 overflow-y-auto p-4 pb-24 bg-[#f9fafb]">
             <form id="product-form" class="space-y-5">
                 <input type="hidden" id="prod-id">
                 
                 <div class="flex justify-center">
-                    <label class="relative w-32 h-32 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-brand-DEFAULT transition-colors">
+                    <label class="relative w-32 h-32 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-brand-DEFAULT transition-colors group">
                         <img id="preview-cover" class="absolute inset-0 w-full h-full object-cover hidden">
-                        <div class="text-center text-gray-400 p-2">
+                        <div class="text-center text-gray-400 p-2 group-hover:text-brand-dark transition-colors">
                             <i data-lucide="camera" class="w-8 h-8 mx-auto mb-1"></i>
                             <span class="text-[10px] uppercase font-bold">Capa</span>
                         </div>
@@ -144,14 +297,19 @@
                         <input type="text" id="prod-title" class="input-field font-serif font-bold text-gray-800" required>
                     </div>
 
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição</label>
+                        <textarea id="prod-desc" rows="3" class="input-field text-sm leading-relaxed"></textarea>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Preço (R$)</label>
-                            <input type="number" step="0.01" id="prod-price" class="input-field font-bold text-brand-deep" placeholder="0.00" required>
+                        <div class="bg-white p-3 rounded-lg border border-gray-200 focus-within:border-brand-DEFAULT transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Preço Original</label>
+                            <input type="text" inputmode="numeric" id="prod-price-original" class="w-full font-bold text-gray-800 outline-none money-mask" placeholder="R$ 0,00" required>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Preço "De" (Opcional)</label>
-                            <input type="number" step="0.01" id="prod-price-old" class="input-field text-gray-500" placeholder="0.00">
+                        <div class="bg-brand-light/30 p-3 rounded-lg border border-brand-light focus-within:border-brand-deep transition-colors">
+                            <label class="block text-[10px] font-bold text-brand-dark uppercase mb-1">Preço Promocional</label>
+                            <input type="text" inputmode="numeric" id="prod-price-promo" class="w-full font-bold text-brand-deep bg-transparent outline-none money-mask" placeholder="Opcional">
                         </div>
                     </div>
 
@@ -162,9 +320,22 @@
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição</label>
-                        <textarea id="prod-desc" rows="4" class="input-field text-sm leading-relaxed"></textarea>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-200">
+                            <span class="font-bold text-xs text-gray-700">Disponível</span>
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="prod-active" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                                <label for="prod-active" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-200">
+                            <span class="font-bold text-xs text-gray-700">Destaque</span>
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="prod-featured" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="prod-featured" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -172,23 +343,21 @@
                         <input type="file" id="prod-gallery" multiple accept="image/*" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-brand-light file:text-brand-deep hover:file:bg-brand-light/80">
                     </div>
 
-                    <div class="admin-card space-y-3">
-                        <label class="flex items-center justify-between">
-                            <span class="font-bold text-sm text-gray-700">Disponível no Site</span>
-                            <input type="checkbox" id="prod-active" class="w-5 h-5 text-brand-DEFAULT rounded focus:ring-brand-light" checked>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1 flex items-center gap-2">
+                            <i data-lucide="youtube" class="w-4 h-4 text-red-600"></i> Vídeo (Shorts/Youtube)
                         </label>
-                        <hr class="border-gray-100">
-                        <label class="flex items-center justify-between">
-                            <span class="font-bold text-sm text-gray-700">Destaque (Carrossel)</span>
-                            <input type="checkbox" id="prod-featured" class="w-5 h-5 text-yellow-500 rounded focus:ring-yellow-200">
-                        </label>
+                        <input type="url" id="prod-video" class="input-field text-sm" placeholder="Cole o link aqui...">
                     </div>
                 </div>
             </form>
         </div>
 
-        <div class="p-4 border-t bg-white absolute bottom-0 left-0 w-full">
-            <button onclick="saveProduct()" id="btn-save" class="btn-primary">
+        <div class="p-4 border-t bg-white absolute bottom-0 left-0 w-full flex gap-3 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+            <button onclick="deleteProductFromModal()" id="btn-delete-prod" class="bg-red-50 text-red-500 px-5 rounded-xl hidden flex items-center justify-center transition-colors hover:bg-red-100 border border-red-100">
+                <i data-lucide="trash-2" class="w-6 h-6"></i>
+            </button>
+            <button onclick="saveProduct()" id="btn-save" class="btn-primary flex-1 shadow-lg shadow-brand-light">
                 <span>Salvar Produto</span>
             </button>
         </div>

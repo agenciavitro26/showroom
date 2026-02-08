@@ -12,7 +12,6 @@ const STORE_DATA = {
     Frete_Minimo: 200, 
 };
 
-// Inicializa o PocketBase
 const pb = new PocketBase(PB_URL);
 
 let allProducts = [];
@@ -52,42 +51,39 @@ function applyFixedIdentity() {
     document.head.appendChild(style);
 }
 
-// --- NOVA FUNÇÃO DE CARREGAMENTO (POCKETBASE) ---
+// --- CARREGAMENTO DE DADOS ---
 async function loadStoreData() {
     const grid = document.getElementById('products-grid');
     grid.innerHTML = '<div class="col-span-full py-20 flex justify-center"><i data-lucide="loader-2" class="animate-spin w-8 h-8 text-brand-dark"></i></div>';
     
     try {
-        // 1. Buscar Categorias Ativas
         const catsResult = await pb.collection('categorias').getFullList({
             filter: 'ativa = true',
             sort: 'nome'
         });
         
-        // 2. Buscar Produtos (Expandindo a categoria para pegar o nome dela)
         const productsResult = await pb.collection('produtos').getFullList({
             filter: 'disponivel = true',
             sort: '-created',
             expand: 'categoria'
         });
 
-        // 3. Processar Produtos para o formato do Site
         allProducts = productsResult.map(record => {
-            // Função para montar URL da imagem no PocketBase
             const getImgUrl = (filename) => {
                 if(!filename) return null;
-                // Monta a URL: http://IP/api/files/ID_DA_COLECAO/ID_DO_REGISTRO/NOME_ARQUIVO
                 return `${PB_URL}/api/files/${record.collectionId}/${record.id}/${filename}`;
             };
 
-            // Junta Foto de Capa + Galeria em um único array
             let imagesArray = [];
-            if (record.foto_capa) imagesArray.push(getImgUrl(record.foto_capa));
+            if (record.foto_capa) imagesArray.push({ type: 'image', src: getImgUrl(record.foto_capa) });
             if (record.galeria && record.galeria.length > 0) {
-                record.galeria.forEach(img => imagesArray.push(getImgUrl(img)));
+                record.galeria.forEach(img => imagesArray.push({ type: 'image', src: getImgUrl(img) }));
+            }
+            
+            if (record.video_youtube) {
+                imagesArray.push({ type: 'video', src: record.video_youtube });
             }
 
-            // Pega o nome da categoria (via relacionamento expandido)
             let catName = "Geral";
             if (record.expand && record.expand.categoria) {
                 catName = record.expand.categoria.nome;
@@ -99,20 +95,19 @@ async function loadStoreData() {
                 price: record.preco_por || 0,
                 oldPrice: record.preco_de || 0,
                 category: catName,
-                desc: record.descricao || "", // HTML do editor rico
-                images: imagesArray,
+                desc: record.descricao || "", 
+                media: imagesArray,
                 featured: record.destaque,
-                youtube: record.video_youtube // Guardamos o link se precisarmos usar
+                youtube: record.video_youtube 
             };
         });
 
-        // Atualiza renderização
         renderCategories(catsResult);
         filterAndRender("Destaques"); 
 
     } catch (error) {
         console.error("Erro PocketBase:", error);
-        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Erro ao conectar com o servidor.<br>Verifique se o PocketBase está rodando.</p>';
+        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Erro ao conectar com o servidor.</p>';
     }
 }
 
@@ -120,12 +115,8 @@ function renderCategories(dbCategories) {
     const container = document.getElementById('cats-container');
     container.innerHTML = '';
     
-    // Categorias Especiais
     const specialCats = ["Destaques", "Promoções"];
-    
-    // Categorias do Banco
     const dbCatNames = dbCategories.map(c => c.nome);
-    
     const allCats = [...specialCats, ...dbCatNames];
 
     allCats.forEach(cat => {
@@ -198,13 +189,13 @@ function renderGrid(products) {
         card.className = "group relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-all duration-300 cursor-pointer animate-fadeInUp";
         card.onclick = () => openProductModal(p.id);
 
-        const img = (p.images && p.images.length) ? p.images[0] : 'https://placehold.co/400x400?text=Sem+Foto';
+        const coverImg = (p.media && p.media.length && p.media[0].type === 'image') ? p.media[0].src : 'https://placehold.co/400x400?text=Sem+Foto';
+        
         const isPromo = (p.oldPrice > p.price);
         const promoHtml = isPromo 
             ? `<span class="absolute top-2 right-2 bg-brand-dark text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 animate-pulse uppercase tracking-wider shadow-sm">Promoção</span>` 
             : '';
 
-        // VIDEO BADGE (Se tiver youtube, mostra um ícone de play pequeno na capa)
         const videoHtml = p.youtube 
             ? `<div class="absolute bottom-2 right-2 bg-black/60 text-white p-1 rounded-full z-10"><i data-lucide="play" class="w-3 h-3"></i></div>`
             : '';
@@ -212,7 +203,7 @@ function renderGrid(products) {
         card.innerHTML = `
             <div class="relative w-full pt-[110%] overflow-hidden bg-gray-50">
                 ${promoHtml}
-                <img src="${img}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                <img src="${coverImg}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
                 ${videoHtml}
                 <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/50 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
                     <span class="text-white text-xs font-bold bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/30">Ver Detalhes</span>
@@ -313,72 +304,126 @@ function updateFloatingButton() {
 }
 window.addEventListener('scroll', updateFloatingButton);
 
-function toggleMenu(forceClose = false) {
-    const overlay = document.getElementById('menu-overlay');
-    const drawer = document.getElementById('menu-drawer');
-    if(!overlay || !drawer) return;
-    if (forceClose || !overlay.classList.contains('hidden')) {
-        overlay.classList.add('opacity-0'); drawer.classList.add('-translate-x-full'); setTimeout(() => overlay.classList.add('hidden'), 300);
-    } else {
-        overlay.classList.remove('hidden'); setTimeout(() => overlay.classList.remove('opacity-0'), 10); drawer.classList.remove('-translate-x-full');
-    }
-}
-function setupEventListeners() { 
-    const overlay = document.getElementById('menu-overlay');
-    if(overlay) overlay.onclick = toggleMenu; 
+// --- EXTRACT YOUTUBE ID (CORRIGIDO PARA TODOS OS FORMATOS) ---
+function extractVideoID(url) {
+    if (!url) return false;
+    // Regex poderosa que pega:
+    // - youtube.com/watch?v=ID
+    // - youtube.com/embed/ID
+    // - youtube.com/v/ID
+    // - youtu.be/ID
+    // - youtube.com/shorts/ID
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/;
+    const match = url.match(regExp);
+    return (match && match[1]) ? match[1] : false;
 }
 
+
+// --- MODAL & CARROSSEL ---
 let currentProduct = null;
-let currentImageIndex = 0;
+let currentMediaIndex = 0;
+
 function openProductModal(id) {
     const p = allProducts.find(x => x.id === id); if (!p) return;
-    currentProduct = p; currentImageIndex = 0;
+    currentProduct = p; 
+    currentMediaIndex = 0;
+    
     document.getElementById('modal-cat').innerText = p.category;
     document.getElementById('modal-title').innerText = p.name;
-    
-    // Tratamento da descrição HTML
-    const descEl = document.getElementById('modal-desc');
-    descEl.innerHTML = p.desc || "Sem descrição disponível."; 
-    
+    document.getElementById('modal-desc').innerHTML = p.desc || "Sem descrição disponível."; 
     document.getElementById('modal-price').innerText = `R$ ${p.price.toFixed(2).replace('.',',')}`;
+    
     updateCarousel();
+    
     const modal = document.getElementById('product-modal');
     modal.classList.remove('hidden'); 
     setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('product-modal-content').classList.remove('translate-y-full'); }, 10);
+    
     document.getElementById('modal-add-btn').onclick = () => { addToCart(p.id); closeProductModal(); };
+    
     document.getElementById('prev-slide').onclick = (e) => { e.stopPropagation(); prevSlide(); };
     document.getElementById('next-slide').onclick = (e) => { e.stopPropagation(); nextSlide(); };
 }
 
 function updateCarousel() {
-    const imgEl = document.getElementById('modal-img'); 
-    const images = currentProduct.images || [];
-    const targetSrc = images.length ? images[currentImageIndex] : 'https://placehold.co/400x400';
+    const imgEl = document.getElementById('modal-img');
+    const container = imgEl.parentElement;
+    
+    const oldIframe = container.querySelector('iframe');
+    if(oldIframe) oldIframe.remove();
+    
+    const media = currentProduct.media || [];
+    const currentItem = media[currentMediaIndex] || { type: 'image', src: 'https://placehold.co/400x400' };
+    
     const dots = document.getElementById('carousel-dots');
     dots.innerHTML = '';
     const prevBtn = document.getElementById('prev-slide');
     const nextBtn = document.getElementById('next-slide');
-    if(images.length > 1) {
-        images.forEach((_, i) => {
+    
+    if(media.length > 1) {
+        media.forEach((_, i) => {
             const d = document.createElement('div');
-            d.className = `w-2 h-2 rounded-full mx-1 transition-all duration-300 ${i === currentImageIndex ? 'bg-brand-dark scale-125' : 'bg-black/20'}`;
+            d.className = `w-2 h-2 rounded-full mx-1 transition-all duration-300 ${i === currentMediaIndex ? 'bg-brand-dark scale-125' : 'bg-black/20'}`;
             dots.appendChild(d);
         });
         prevBtn.style.display = 'flex'; nextBtn.style.display = 'flex';
     } else {
         prevBtn.style.display = 'none'; nextBtn.style.display = 'none';
     }
-    imgEl.style.opacity = '0';
-    const tempImg = new Image();
-    tempImg.src = targetSrc;
-    tempImg.onload = () => { imgEl.src = targetSrc; requestAnimationFrame(() => { imgEl.style.opacity = '1'; }); };
+
+    if (currentItem.type === 'video') {
+        imgEl.classList.add('hidden'); 
+        
+        const videoId = extractVideoID(currentItem.src);
+
+        if (videoId) {
+            // Embed seguro com ORIGIN (Evita erro 153)
+            const origin = window.location.origin;
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&modestbranding=1&playsinline=1&origin=${origin}`;
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.className = "absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"; 
+            iframe.allow = "autoplay; encrypted-media; loop";
+            iframe.frameBorder = "0";
+            iframe.setAttribute("loading", "lazy");
+            
+            container.insertBefore(iframe, imgEl); 
+        } else {
+             imgEl.classList.remove('hidden');
+             imgEl.src = 'https://placehold.co/400x400?text=Erro+Video';
+        }
+    } else {
+        imgEl.classList.remove('hidden');
+        imgEl.style.opacity = '0';
+        const tempImg = new Image();
+        tempImg.src = currentItem.src;
+        tempImg.onload = () => { imgEl.src = currentItem.src; requestAnimationFrame(() => { imgEl.style.opacity = '1'; }); };
+    }
 }
-function prevSlide() { if(currentProduct.images.length > 1) { currentImageIndex = (currentImageIndex - 1 + currentProduct.images.length) % currentProduct.images.length; updateCarousel(); }}
-function nextSlide() { if(currentProduct.images.length > 1) { currentImageIndex = (currentImageIndex + 1) % currentProduct.images.length; updateCarousel(); }}
+
+function prevSlide() { 
+    if(currentProduct.media.length > 1) { 
+        currentMediaIndex = (currentMediaIndex - 1 + currentProduct.media.length) % currentProduct.media.length; 
+        updateCarousel(); 
+    }
+}
+function nextSlide() { 
+    if(currentProduct.media.length > 1) { 
+        currentMediaIndex = (currentMediaIndex + 1) % currentProduct.media.length; 
+        updateCarousel(); 
+    }
+}
+
 function closeProductModal(e) { 
     if(e && e.target.id !== 'product-modal' && !e.target.closest('button')) return;
     const modal = document.getElementById('product-modal');
     modal.classList.add('opacity-0'); document.getElementById('product-modal-content').classList.add('translate-y-full');
+    
+    const container = document.getElementById('modal-img').parentElement;
+    const oldIframe = container.querySelector('iframe');
+    if(oldIframe) setTimeout(() => oldIframe.remove(), 300);
+
     setTimeout(() => modal.classList.add('hidden'), 300); 
 }
 
@@ -431,7 +476,13 @@ function renderCart() {
         const d = document.createElement('div'); 
         d.className = "flex gap-4 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm mb-3";
         
-        const imgUrl = (p.images && p.images.length) ? p.images[0] : 'https://placehold.co/100';
+        // Prioriza Imagem
+        let imgUrl = 'https://placehold.co/100';
+        if (p.media && p.media.length) {
+             const imgMedia = p.media.find(m => m.type === 'image');
+             if(imgMedia) imgUrl = imgMedia.src;
+        }
+
         const minusIcon = item.qty === 1 ? 'trash-2' : 'minus';
         const minusColor = item.qty === 1 ? 'text-red-400 hover:bg-red-50' : 'text-gray-500 hover:bg-gray-100';
 
