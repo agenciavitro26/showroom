@@ -1,5 +1,6 @@
 // --- CONFIGURAÇÃO ---
-const PB_URL = "https://api.agenciavitro.com.br";
+// !!! CORREÇÃO: REMOVIDO O "api." PARA BATER COM O SERVIDOR !!!
+const PB_URL = "https://agenciavitro.com.br";
 const pb = new PocketBase(PB_URL);
 
 // Galeria
@@ -671,6 +672,7 @@ function handleGlobalTouchEnd(e) {
     // Renderiza limpo para garantir consistência final
     renderGalleryGrid();
 }
+
 
 // --- SAVE ---
 async function saveProduct() {

@@ -4,8 +4,8 @@ const SITE_IDENTITY = {
     COLOR: "#86198f",
 };
 
-// !!! IP DA VPS CONFIGURADO AQUI !!!
-const PB_URL = "https://api.agenciavitro.com.br";
+// !!! CORREÇÃO: REMOVIDO O "api." PARA BATER COM O SERVIDOR !!!
+const PB_URL = "https://agenciavitro.com.br";
 
 const STORE_DATA = {
     Whatsapp: "551151998993",
@@ -237,12 +237,19 @@ function navigateTo(viewId) {
             if(btn) { 
                 btn.classList.remove('bg-white/50', 'text-brand-dark', 'hover:bg-white'); 
                 btn.classList.add('bg-brand-dark', 'text-white');
+                
+                // CORREÇÃO ÍCONE HOME: Força fill="none" para que a "portinha" não suma
+                const svg = btn.querySelector('svg');
+                if(svg && t === 'home') svg.setAttribute('fill', 'none');
             }
             if(section) section.classList.remove('hidden');
         } else {
             if(btn) { 
                 btn.classList.add('bg-white/50', 'text-brand-dark', 'hover:bg-white'); 
                 btn.classList.remove('bg-brand-dark', 'text-white'); 
+                
+                const svg = btn.querySelector('svg');
+                if(svg && t === 'home') svg.removeAttribute('fill');
             }
             if(section) section.classList.add('hidden');
         }
