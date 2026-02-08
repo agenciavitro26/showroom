@@ -2,7 +2,7 @@
 const PB_URL = "https://api.agenciavitro.com.br";
 const pb = new PocketBase(PB_URL);
 
-// Galeria: Array único de objetos
+// Galeria
 let galleryItems = [];
 let initialExistingFiles = []; 
 
@@ -11,19 +11,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
     checkAuth();
     
-    // Configura máscaras de dinheiro
     document.querySelectorAll('.money-mask').forEach(input => {
         input.addEventListener('input', (e) => formatMoneyInput(e.target));
     });
 });
 
-// --- HELPER: Scroll Top ---
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
 }
 
-// --- HELPER: Colar da Área de Transferência ---
+// --- HELPER: Colar (Com fallback para HTTP) ---
 async function pasteFromClipboard(inputId) {
     try {
         const text = await navigator.clipboard.readText();
@@ -31,11 +29,13 @@ async function pasteFromClipboard(inputId) {
             document.getElementById(inputId).value = text;
         }
     } catch (err) {
-        alert("Permissão para colar negada. Cole manualmente.");
+        // Se falhar (ex: site sem HTTPS), avisa o usuário
+        alert("O navegador bloqueou o acesso à área de transferência (requer HTTPS). Por favor, cole o link manualmente.");
+        document.getElementById(inputId).focus();
     }
 }
 
-// --- SISTEMA DE MODAL (Custom Dialogs) ---
+// --- SISTEMA DE MODAL ---
 function showCustomModal({ title, msg, icon = 'info', input = false, confirmText = 'Confirmar', onConfirm }) {
     const overlay = document.getElementById('custom-modal-overlay');
     const content = document.getElementById('custom-modal-content');
@@ -49,7 +49,6 @@ function showCustomModal({ title, msg, icon = 'info', input = false, confirmText
     titleEl.innerText = title;
     msgEl.innerText = msg;
     confirmBtn.innerText = confirmText;
-    
     iconEl.setAttribute('data-lucide', icon);
     
     if (input) {
@@ -119,7 +118,6 @@ function requestAddCategory() {
     });
 }
 
-// --- MÁSCARA DE DINHEIRO ---
 function formatMoneyInput(input) {
     let value = input.value.replace(/\D/g, "");
     value = (Number(value) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -165,7 +163,6 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     }
 });
 
-// --- NAVEGAÇÃO ---
 function switchTab(tab) {
     document.getElementById('view-home').classList.add('hidden');
     document.getElementById('view-products').classList.add('hidden');
@@ -194,7 +191,6 @@ async function loadDashboard() {
     switchTab('home'); 
 }
 
-// --- ASSINATURA E HOME ---
 async function loadSubscription() {
     const loading = document.getElementById('sub-loading');
     const content = document.getElementById('sub-content');
@@ -215,7 +211,6 @@ async function loadSubscription() {
             
             statusText.innerText = sub.status;
             
-            // Lógica de Cores e Ícones
             let colorClass = "text-gray-500";
             let bgClass = "bg-gray-100";
             let iconName = "help-circle";
@@ -262,9 +257,7 @@ async function loadSubscription() {
     }
 }
 
-// --- CATEGORIAS ---
 let allCategories = [];
-
 async function loadCategories() {
     try {
         const list = await pb.collection('categorias').getFullList({ sort: 'nome' });
@@ -342,7 +335,6 @@ async function deleteCategorySafe() {
     });
 }
 
-// --- PRODUTOS ---
 async function loadProducts() {
     const container = document.getElementById('products-list');
     container.innerHTML = '<div class="text-center py-10"><div class="loader mx-auto"></div></div>';
@@ -390,7 +382,6 @@ function renderProductList(items, containerElement) {
     lucide.createIcons();
 }
 
-// --- MODAL DE PRODUTO & GALERIA ---
 function openProductModal(productData = null, preSelectedCatId = null) {
     scrollToTop();
     const form = document.getElementById('product-form');
@@ -497,6 +488,7 @@ function removePhoto(index) {
     renderGalleryGrid();
 }
 
+// Renderiza a grid (Cria o DOM inicial)
 function renderGalleryGrid() {
     const grid = document.getElementById('gallery-grid');
     grid.innerHTML = '';
@@ -504,28 +496,31 @@ function renderGalleryGrid() {
 
     galleryItems.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = "relative aspect-square bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group cursor-move select-none";
+        div.className = "relative aspect-square bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group cursor-move select-none transition-transform duration-100";
         div.setAttribute('data-index', index);
         
-        let src = '';
+        let contentHtml = '';
         if(item.type === 'existing') {
-            src = `${PB_URL}/api/files/produtos/${pid}/${item.value}?thumb=100x100`;
-            div.innerHTML = `<img src="${src}" class="w-full h-full object-cover pointer-events-none">`;
+            let src = `${PB_URL}/api/files/produtos/${pid}/${item.value}?thumb=100x100`;
+            div.style.backgroundImage = `url('${src}')`;
         } else {
              const reader = new FileReader();
              reader.onload = (e) => {
                  div.style.backgroundImage = `url(${e.target.result})`;
-                 div.style.backgroundSize = 'cover';
-                 div.style.backgroundPosition = 'center';
              };
              reader.readAsDataURL(item.value);
-             div.innerHTML = `<span class="absolute bottom-1 left-1 bg-brand-dark text-white text-[9px] px-1.5 rounded font-bold pointer-events-none">NOVA</span>`;
+             contentHtml = `<span class="absolute bottom-1 left-1 bg-brand-dark text-white text-[9px] px-1.5 rounded font-bold pointer-events-none">NOVA</span>`;
         }
+        
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
 
         const delBtn = document.createElement('button');
         delBtn.className = "absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-md opacity-90 hover:opacity-100 z-10 cursor-pointer";
         delBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
         delBtn.onclick = (e) => { e.stopPropagation(); removePhoto(index); };
+        
+        div.innerHTML = contentHtml;
         div.appendChild(delBtn);
 
         // Desktop Events
@@ -536,7 +531,7 @@ function renderGalleryGrid() {
         div.addEventListener('dragenter', handleDragEnter);
         div.addEventListener('dragleave', handleDragLeave);
 
-        // Mobile Touch Events (com Fantasma)
+        // Mobile Touch Events
         div.addEventListener('touchstart', handleTouchStart, {passive: false});
 
         grid.appendChild(div);
@@ -545,7 +540,7 @@ function renderGalleryGrid() {
     lucide.createIcons();
 }
 
-// --- DRAG & DROP LOGIC (DESKTOP) ---
+// --- DRAG & DROP (DESKTOP) ---
 let dragSrcIndex = null;
 
 function handleDragStart(e) {
@@ -568,15 +563,14 @@ function handleDrop(e) {
     return false;
 }
 
-// --- MOBILE TOUCH LOGIC (COM FANTASMA) ---
+// --- DRAG & DROP (MOBILE - COM FANTASMA & SEM TRAVAMENTO) ---
 let ghostEl = null;
 
 function handleTouchStart(e) {
-    e.preventDefault(); 
-    dragSrcIndex = this.getAttribute('data-index');
-    const touch = e.touches[0];
+    e.preventDefault(); // Necessário para evitar scroll
+    dragSrcIndex = parseInt(this.getAttribute('data-index'));
     
-    // Criar Fantasma
+    // 1. Criar Fantasma Visual
     const rect = this.getBoundingClientRect();
     ghostEl = this.cloneNode(true);
     ghostEl.style.position = 'fixed';
@@ -585,19 +579,22 @@ function handleTouchStart(e) {
     ghostEl.style.top = `${rect.top}px`;
     ghostEl.style.left = `${rect.left}px`;
     ghostEl.style.zIndex = '1000';
-    ghostEl.style.opacity = '0.8';
-    ghostEl.style.pointerEvents = 'none'; // Importante para não bloquear elementFromPoint
-    ghostEl.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
-    ghostEl.style.transform = 'scale(1.05)';
-    ghostEl.classList.remove('border-gray-200');
-    ghostEl.classList.add('border-brand-DEFAULT', 'border-2');
+    ghostEl.style.opacity = '0.9';
+    ghostEl.style.pointerEvents = 'none'; // Importante para não bloquear a detecção do elemento abaixo
+    ghostEl.style.boxShadow = '0 15px 30px rgba(0,0,0,0.3)';
+    ghostEl.style.transform = 'scale(1.1)';
+    ghostEl.style.border = '2px solid #d946ef';
+    
+    // Remove botão de delete do fantasma para ficar limpo
+    const ghostBtn = ghostEl.querySelector('button');
+    if(ghostBtn) ghostBtn.remove();
     
     document.body.appendChild(ghostEl);
     
-    // Opacidade no original
-    this.style.opacity = '0.3';
+    // 2. Feedback no original
+    this.style.opacity = '0.2';
     
-    // Bind global move events
+    // 3. Bind eventos globais
     document.addEventListener('touchmove', handleGlobalTouchMove, {passive: false});
     document.addEventListener('touchend', handleGlobalTouchEnd);
 }
@@ -608,40 +605,61 @@ function handleGlobalTouchMove(e) {
     
     const touch = e.touches[0];
     
-    // Mover Fantasma (Centralizado no dedo)
+    // Mover Fantasma
     const w = ghostEl.offsetWidth;
     const h = ghostEl.offsetHeight;
     ghostEl.style.left = `${touch.clientX - w/2}px`;
     ghostEl.style.top = `${touch.clientY - h/2}px`;
 
-    // Detectar Alvo por baixo
+    // Detectar elemento alvo abaixo do dedo
     const target = document.elementFromPoint(touch.clientX, touch.clientY);
     
     if (target && target.closest('[data-index]')) {
         const dropTarget = target.closest('[data-index]');
-        const dropIndex = dropTarget.getAttribute('data-index');
+        const dropIndex = parseInt(dropTarget.getAttribute('data-index'));
         
+        // Se estiver sobre um quadrado diferente do original
         if (dropIndex !== dragSrcIndex) {
-            // Realizar troca
-            const draggedItem = galleryItems[dragSrcIndex];
-            galleryItems.splice(dragSrcIndex, 1);
-            galleryItems.splice(dropIndex, 0, draggedItem);
             
-            // Atualizar índice de origem para a nova posição
+            // 1. Troca os dados no Array
+            const draggedItem = galleryItems[dragSrcIndex];
+            galleryItems[dragSrcIndex] = galleryItems[dropIndex];
+            galleryItems[dropIndex] = draggedItem;
+
+            // 2. Troca visualmente os elementos DOM (Troca background e data-index)
+            // Isso evita destruir e recriar o DOM, o que causaria o travamento
+            const grid = document.getElementById('gallery-grid');
+            const nodes = grid.children;
+            const nodeA = nodes[dragSrcIndex];
+            const nodeB = nodes[dropIndex];
+            
+            // Troca Backgrounds
+            const bgA = nodeA.style.backgroundImage;
+            const bgB = nodeB.style.backgroundImage;
+            nodeA.style.backgroundImage = bgB;
+            nodeB.style.backgroundImage = bgA;
+
+            // Troca o conteúdo HTML (tag NOVA)
+            const htmlA = nodeA.innerHTML;
+            const htmlB = nodeB.innerHTML;
+            nodeA.innerHTML = htmlB;
+            nodeB.innerHTML = htmlA;
+
+            // Corrige opacidade (o novo local do drag deve ficar transparente)
+            nodeA.style.opacity = '1';
+            nodeB.style.opacity = '0.2';
+
+            // Atualiza o índice atual do drag
             dragSrcIndex = dropIndex;
             
-            // Re-renderizar (Isso remove o elemento original, mas o fantasma continua no body)
-            renderGalleryGrid();
-            
-            // Manter opacidade no novo elemento que está "sendo arrastado"
-            const newOriginal = document.querySelector(`[data-index="${dragSrcIndex}"]`);
-            if(newOriginal) newOriginal.style.opacity = '0.3';
+            // Re-bind click do botão de delete (já que trocamos o innerHTML)
+            // Como trocamos o HTML, os listeners inline onclick funcionam, mas se for addEventListener precisa recriar.
+            // Aqui usamos onclick no HTML string, então funciona.
         }
     }
 }
 
 function handleGlobalTouchEnd(e) {
-    // Limpar eventos e fantasma
     document.removeEventListener('touchmove', handleGlobalTouchMove);
     document.removeEventListener('touchend', handleGlobalTouchEnd);
     
@@ -650,10 +668,9 @@ function handleGlobalTouchEnd(e) {
         ghostEl = null;
     }
     
-    // Restaurar opacidade e grid limpo
+    // Renderiza limpo para garantir consistência final
     renderGalleryGrid();
 }
-
 
 // --- SAVE ---
 async function saveProduct() {

@@ -346,7 +346,7 @@
         </div>
     </div>
 
-    <div id="gallery-manager" class="fixed inset-0 z-[60] bg-white hidden flex flex-col animate-slideUp">
+    <div id="gallery-manager" class="fixed inset-0 z-[70] bg-white hidden flex flex-col animate-slideUp">
          <div class="p-4 border-b flex justify-between items-center bg-white sticky top-0 z-10 shadow-sm">
             <h3 class="font-serif font-bold text-brand-deep text-lg">Gerenciar Fotos</h3>
             <button onclick="closeGalleryManager()" class="text-gray-400 p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
@@ -359,7 +359,7 @@
             <input type="file" id="gallery-upload-input" multiple accept="image/*" class="hidden" onchange="handleGallerySelect(this)">
         </div>
 
-        <div class="p-4 border-t bg-white absolute bottom-0 left-0 w-full flex gap-3 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-20">
+        <div class="p-4 border-t bg-white absolute bottom-0 left-0 w-full flex gap-3 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-20 justify-center">
             <button onclick="document.getElementById('gallery-upload-input').click()" class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl flex-1 font-bold hover:bg-gray-200 transition-colors">
                 Adicionar Foto
             </button>
