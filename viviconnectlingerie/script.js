@@ -259,12 +259,13 @@ function navigateTo(viewId) {
 }
 
 const floatingControls = document.getElementById('floating-controls');
-const btnMenuAction = document.getElementById('btn-menu-action');
 const miniHeader = document.getElementById('mini-header');
 const stickyWrapper = document.getElementById('sticky-header-wrapper');
 
 function updateFloatingButton() {
     const currentScrollY = window.scrollY;
+    // Pega o botão dinamicamente para evitar erro de referência
+    const btnMenuAction = document.getElementById('btn-menu-action');
 
     if (miniHeader) {
         if (currentScrollY > 250) {
@@ -299,25 +300,37 @@ function updateFloatingButton() {
             btnMenuAction.onclick = () => { toggleMenu(); btnMenuAction.blur(); };
             floatingControls.style.transform = `translateY(0)`;
         }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
-    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 window.addEventListener('scroll', updateFloatingButton);
+
+function toggleMenu(forceClose = false) {
+    const overlay = document.getElementById('menu-overlay');
+    const drawer = document.getElementById('menu-drawer');
+    if(!overlay || !drawer) return;
+    
+    // Força lucide update se precisar
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    if (forceClose || !overlay.classList.contains('hidden')) {
+        overlay.classList.add('opacity-0'); drawer.classList.add('-translate-x-full'); setTimeout(() => overlay.classList.add('hidden'), 300);
+    } else {
+        overlay.classList.remove('hidden'); setTimeout(() => overlay.classList.remove('opacity-0'), 10); drawer.classList.remove('-translate-x-full');
+    }
+}
+function setupEventListeners() { 
+    const overlay = document.getElementById('menu-overlay');
+    if(overlay) overlay.onclick = () => toggleMenu(true); 
+}
 
 // --- EXTRACT YOUTUBE ID (CORRIGIDO PARA TODOS OS FORMATOS) ---
 function extractVideoID(url) {
     if (!url) return false;
-    // Regex poderosa que pega:
-    // - youtube.com/watch?v=ID
-    // - youtube.com/embed/ID
-    // - youtube.com/v/ID
-    // - youtu.be/ID
-    // - youtube.com/shorts/ID
     const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/;
     const match = url.match(regExp);
     return (match && match[1]) ? match[1] : false;
 }
-
 
 // --- MODAL & CARROSSEL ---
 let currentProduct = null;
@@ -377,9 +390,9 @@ function updateCarousel() {
         const videoId = extractVideoID(currentItem.src);
 
         if (videoId) {
-            // Embed seguro com ORIGIN (Evita erro 153)
+            // Embed seguro com ORIGIN e NO-COOKIE
             const origin = window.location.origin;
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&modestbranding=1&playsinline=1&origin=${origin}`;
+            const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&origin=${origin}`;
             
             const iframe = document.createElement('iframe');
             iframe.src = embedUrl;

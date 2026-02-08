@@ -44,24 +44,19 @@
         .nav-item.active { color: #d946ef; }
         .nav-item.active i { fill: #fde3fc; }
         
-        /* Toggle Switch CSS */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #d946ef;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #d946ef;
-        }
-        .toggle-checkbox:checked + .toggle-label:before {
-            transform: translateX(100%);
-        }
+        .toggle-checkbox:checked { right: 0; border-color: #d946ef; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #d946ef; }
+        .toggle-checkbox:checked + .toggle-label:before { transform: translateX(100%); }
 
-        /* Forçar cor dos botões de ação */
-        .btn-action-force {
-            background-color: #d946ef !important;
+        /* Força cor roxa escura nos botões de ação */
+        .btn-action-purple {
+            background-color: #86198f !important; /* brand-dark */
             color: white !important;
         }
-        .btn-action-force:active {
+        .btn-action-purple:hover {
+            background-color: #701a75 !important; /* brand-deep */
+        }
+        .btn-action-purple:active {
             transform: scale(0.95);
         }
     </style>
@@ -156,13 +151,8 @@
                 </div>
 
                 <div class="bg-vitro-dark text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
-                     <div class="absolute -right-5 -bottom-5 w-48 h-48 opacity-10 pointer-events-none transform -rotate-12">
-                        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="text-white">
-                            <path d="M20,20 L50,90 L80,20" />
-                            <circle cx="50" cy="50" r="45" stroke-dasharray="10,5" />
-                        </svg>
-                     </div>
-
+                    <img src="./assets/logo.png" class="absolute -right-6 -bottom-6 w-40 h-40 opacity-10 rotate-12 grayscale brightness-200 pointer-events-none">
+                    
                      <h3 class="font-bold text-lg mb-1 relative z-10">Suporte Agência Vitrô</h3>
                      <p class="text-gray-400 text-xs mb-6 max-w-[80%] relative z-10">Precisa de ajuda com o painel ou quer evoluir seu site? Fale conosco.</p>
                      
@@ -192,7 +182,7 @@
             <div id="view-products" class="hidden space-y-4">
                 <div class="flex justify-between items-center px-2">
                     <h2 class="font-serif font-bold text-2xl text-brand-dark">Produtos</h2>
-                    <button onclick="openProductModal()" class="btn-action-force w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
+                    <button onclick="openProductModal()" class="btn-action-purple w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
                         <i data-lucide="plus" class="w-7 h-7"></i>
                     </button>
                 </div>
@@ -208,7 +198,7 @@
             <div id="view-categories" class="hidden space-y-4">
                 <div class="flex justify-between items-center px-2">
                     <h2 class="font-serif font-bold text-2xl text-brand-dark">Categorias</h2>
-                    <button onclick="promptAddCategory()" class="btn-action-force w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
+                    <button onclick="promptAddCategory()" class="btn-action-purple w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
                         <i data-lucide="plus" class="w-7 h-7"></i>
                     </button>
                 </div>
