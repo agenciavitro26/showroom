@@ -1,5 +1,5 @@
 // --- CONFIGURAÇÃO ---
-const PB_URL = "http://181.214.221.254"; // SEU IP
+const PB_URL = "https://api.agenciavitro.com.br";
 const pb = new PocketBase(PB_URL);
 
 // Inicialização

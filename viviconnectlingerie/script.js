@@ -5,7 +5,7 @@ const SITE_IDENTITY = {
 };
 
 // !!! IP DA VPS CONFIGURADO AQUI !!!
-const PB_URL = "http://181.214.221.254"; 
+const PB_URL = "https://api.agenciavitro.com.br";
 
 const STORE_DATA = {
     Whatsapp: "551151998993",
