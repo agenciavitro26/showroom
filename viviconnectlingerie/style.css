@@ -82,3 +82,61 @@ input, textarea, select {
     background-color: #e5e7eb;
     border-radius: 4px;
 }
+
+/* =========================================
+   ESTILOS DO PAINEL ADMIN (NOVO)
+   ========================================= */
+.admin-card {
+    background-color: white;
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #f3f4f6;
+    padding: 1rem;
+}
+
+.input-field {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 0.75rem;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.input-field:focus {
+    border-color: #d946ef; /* brand-DEFAULT */
+}
+
+.btn-primary {
+    width: 100%;
+    background-color: #86198f; /* brand-dark */
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.75rem; /* rounded-xl */
+    font-weight: 700;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:active {
+    transform: scale(0.95);
+}
+
+.loader {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #d946ef;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

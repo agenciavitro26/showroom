@@ -1,19 +1,22 @@
 // --- 1. CONFIGURAÇÕES FIXAS ---
 const SITE_IDENTITY = {
     NAME: "Vivi Connect - Lingerie & Sex Shop",
-    COLOR: "#86198f", // Cor Escura da Barra
+    COLOR: "#86198f",
 };
-const FILE_ID = "1-DhZk0infjsHAZxJfv8-2Li1xydn0UJk";
-const API_URL = "https://script.google.com/macros/s/AKfycbwVQhbi_iaFgR-BPUlCfXoTj4BIY1PvjNhpYx5CT7uZj9DCGcR_hkNOqOA7aUFVVR1_ug/exec";
+
+// !!! IP DA VPS CONFIGURADO AQUI !!!
+const PB_URL = "http://181.214.221.254"; 
 
 const STORE_DATA = {
     Whatsapp: "551151998993",
     Frete_Minimo: 200, 
 };
 
+// Inicializa o PocketBase
+const pb = new PocketBase(PB_URL);
+
 let allProducts = [];
 let cart = []; 
-let categories = []; 
 let currentCategory = "Destaques"; 
 let currentSort = "default"; 
 let currentView = 'home'; 
@@ -49,67 +52,81 @@ function applyFixedIdentity() {
     document.head.appendChild(style);
 }
 
+// --- NOVA FUNÇÃO DE CARREGAMENTO (POCKETBASE) ---
 async function loadStoreData() {
     const grid = document.getElementById('products-grid');
     grid.innerHTML = '<div class="col-span-full py-20 flex justify-center"><i data-lucide="loader-2" class="animate-spin w-8 h-8 text-brand-dark"></i></div>';
     
     try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
+        // 1. Buscar Categorias Ativas
+        const catsResult = await pb.collection('categorias').getFullList({
+            filter: 'ativa = true',
+            sort: 'nome'
+        });
+        
+        // 2. Buscar Produtos (Expandindo a categoria para pegar o nome dela)
+        const productsResult = await pb.collection('produtos').getFullList({
+            filter: 'disponivel = true',
+            sort: '-created',
+            expand: 'categoria'
+        });
 
-        const parseMoney = (value) => {
-            if (!value) return 0;
-            if (typeof value === 'number') return value;
-            const clean = value.toString().replace(/[^0-9,]/g, '').replace(',', '.');
-            return parseFloat(clean) || 0;
-        };
+        // 3. Processar Produtos para o formato do Site
+        allProducts = productsResult.map(record => {
+            // Função para montar URL da imagem no PocketBase
+            const getImgUrl = (filename) => {
+                if(!filename) return null;
+                // Monta a URL: http://IP/api/files/ID_DA_COLECAO/ID_DO_REGISTRO/NOME_ARQUIVO
+                return `${PB_URL}/api/files/${record.collectionId}/${record.id}/${filename}`;
+            };
 
-        allProducts = data.items.map(item => {
+            // Junta Foto de Capa + Galeria em um único array
             let imagesArray = [];
-            if (item.image) {
-                let raw = item.image.includes('||') ? item.image.split('||') : [item.image];
-                imagesArray = raw.map(l => {
-                    l = l.trim();
-                    if (l.includes('drive.google.com') && !l.includes('thumbnail')) {
-                        let id = l.split('id=')[1]?.split('&')[0] || l.split('/d/')[1]?.split('/')[0];
-                        if(id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
-                    }
-                    return l;
-                }).filter(l => l.length > 10);
+            if (record.foto_capa) imagesArray.push(getImgUrl(record.foto_capa));
+            if (record.galeria && record.galeria.length > 0) {
+                record.galeria.forEach(img => imagesArray.push(getImgUrl(img)));
+            }
+
+            // Pega o nome da categoria (via relacionamento expandido)
+            let catName = "Geral";
+            if (record.expand && record.expand.categoria) {
+                catName = record.expand.categoria.nome;
             }
 
             return {
-                id: item.id,
-                name: item.name,
-                price: parseMoney(item.price),
-                oldPrice: parseMoney(item.oldPrice),
-                category: item.category,
-                desc: item.description,
+                id: record.id,
+                name: record.titulo,
+                price: record.preco_por || 0,
+                oldPrice: record.preco_de || 0,
+                category: catName,
+                desc: record.descricao || "", // HTML do editor rico
                 images: imagesArray,
-                featured: item.featured 
+                featured: record.destaque,
+                youtube: record.video_youtube // Guardamos o link se precisarmos usar
             };
         });
 
-        if (data.categories && data.categories.length > 0) {
-            categories = data.categories.filter(c => c !== "Todos" && c !== "Destaques" && c !== "Promoções" && c !== "Lançamentos");
-        } else {
-            categories = [...new Set(allProducts.map(p => p.category))].sort();
-        }
-
-        renderCategories();
+        // Atualiza renderização
+        renderCategories(catsResult);
         filterAndRender("Destaques"); 
 
     } catch (error) {
-        console.error(error);
-        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Erro ao carregar loja.</p>';
+        console.error("Erro PocketBase:", error);
+        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Erro ao conectar com o servidor.<br>Verifique se o PocketBase está rodando.</p>';
     }
 }
 
-function renderCategories() {
+function renderCategories(dbCategories) {
     const container = document.getElementById('cats-container');
     container.innerHTML = '';
+    
+    // Categorias Especiais
     const specialCats = ["Destaques", "Promoções"];
-    const allCats = [...specialCats, ...categories];
+    
+    // Categorias do Banco
+    const dbCatNames = dbCategories.map(c => c.nome);
+    
+    const allCats = [...specialCats, ...dbCatNames];
 
     allCats.forEach(cat => {
         const btn = document.createElement('button');
@@ -187,10 +204,16 @@ function renderGrid(products) {
             ? `<span class="absolute top-2 right-2 bg-brand-dark text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 animate-pulse uppercase tracking-wider shadow-sm">Promoção</span>` 
             : '';
 
+        // VIDEO BADGE (Se tiver youtube, mostra um ícone de play pequeno na capa)
+        const videoHtml = p.youtube 
+            ? `<div class="absolute bottom-2 right-2 bg-black/60 text-white p-1 rounded-full z-10"><i data-lucide="play" class="w-3 h-3"></i></div>`
+            : '';
+
         card.innerHTML = `
             <div class="relative w-full pt-[110%] overflow-hidden bg-gray-50">
                 ${promoHtml}
                 <img src="${img}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                ${videoHtml}
                 <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/50 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
                     <span class="text-white text-xs font-bold bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/30">Ver Detalhes</span>
                 </div>
@@ -252,26 +275,20 @@ const stickyWrapper = document.getElementById('sticky-header-wrapper');
 function updateFloatingButton() {
     const currentScrollY = window.scrollY;
 
-    // LÓGICA DO MINI HEADER (Agora Fixo ao Rolar)
     if (miniHeader) {
-        // Se rolou mais que 250px (capa saiu)
         if (currentScrollY > 250) {
             miniHeader.classList.remove('max-h-0', 'opacity-0', 'mb-0');
             miniHeader.classList.add('max-h-[100px]', 'opacity-100', 'mb-0');
-            
             if(stickyWrapper) {
                 stickyWrapper.classList.add('shadow-md', 'border-gray-100');
-                // REMOVE AS BORDAS ARREDONDADAS PARA ENCAIXAR E TAPAR O FUNDO
                 stickyWrapper.classList.remove('rounded-t-[35px]');
             }
         } 
         else {
             miniHeader.classList.add('max-h-0', 'opacity-0', 'mb-0');
             miniHeader.classList.remove('max-h-[100px]', 'opacity-100');
-            
             if(stickyWrapper) {
                 stickyWrapper.classList.remove('shadow-md', 'border-gray-100');
-                // VOLTA AS BORDAS ARREDONDADAS
                 stickyWrapper.classList.add('rounded-t-[35px]');
             }
         }
@@ -318,7 +335,11 @@ function openProductModal(id) {
     currentProduct = p; currentImageIndex = 0;
     document.getElementById('modal-cat').innerText = p.category;
     document.getElementById('modal-title').innerText = p.name;
-    document.getElementById('modal-desc').innerText = p.desc || "Sem descrição disponível.";
+    
+    // Tratamento da descrição HTML
+    const descEl = document.getElementById('modal-desc');
+    descEl.innerHTML = p.desc || "Sem descrição disponível."; 
+    
     document.getElementById('modal-price').innerText = `R$ ${p.price.toFixed(2).replace('.',',')}`;
     updateCarousel();
     const modal = document.getElementById('product-modal');
