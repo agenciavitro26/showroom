@@ -13,6 +13,113 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// --- HELPER: Scroll Top ---
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+// --- HELPER: Colar da Área de Transferência ---
+async function pasteFromClipboard(inputId) {
+    try {
+        const text = await navigator.clipboard.readText();
+        if(text) {
+            document.getElementById(inputId).value = text;
+        }
+    } catch (err) {
+        alert("Permissão para colar negada. Cole manualmente.");
+    }
+}
+
+// --- SISTEMA DE MODAL (Custom Dialogs) ---
+function showCustomModal({ title, msg, icon = 'info', input = false, confirmText = 'Confirmar', onConfirm }) {
+    const overlay = document.getElementById('custom-modal-overlay');
+    const content = document.getElementById('custom-modal-content');
+    const titleEl = document.getElementById('modal-title');
+    const msgEl = document.getElementById('modal-msg');
+    const inputEl = document.getElementById('modal-input');
+    const iconEl = document.getElementById('modal-icon');
+    const confirmBtn = document.getElementById('modal-confirm');
+    const cancelBtn = document.getElementById('modal-cancel');
+
+    // Configurações Visuais
+    titleEl.innerText = title;
+    msgEl.innerText = msg;
+    confirmBtn.innerText = confirmText;
+    
+    // Ícone
+    // Se quiser lógica de ícone dinâmico, pode expandir. Por enquanto usa lucide classes
+    // Reset icon content if needed logic here, or just keep info.
+
+    // Input
+    if (input) {
+        inputEl.classList.remove('hidden');
+        inputEl.value = '';
+        inputEl.focus();
+    } else {
+        inputEl.classList.add('hidden');
+    }
+
+    // Mostrar
+    overlay.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-90', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    // Ações
+    const close = () => {
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-90', 'opacity-0');
+        setTimeout(() => overlay.classList.add('hidden'), 200);
+    };
+
+    // Remove listeners antigos (clone hack)
+    const newConfirm = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+    
+    const newCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+    newCancel.addEventListener('click', close);
+    
+    newConfirm.addEventListener('click', () => {
+        if(input && !inputEl.value.trim()) return; // Validação simples
+        const value = input ? inputEl.value.trim() : true;
+        onConfirm(value);
+        close();
+    });
+}
+
+// Wrappers para substituir os nativos
+function requestLogout() {
+    showCustomModal({
+        title: "Sair do Painel",
+        msg: "Tem certeza que deseja sair?",
+        confirmText: "Sair",
+        onConfirm: () => {
+            pb.authStore.clear();
+            checkAuth();
+        }
+    });
+}
+
+function requestAddCategory() {
+    showCustomModal({
+        title: "Nova Categoria",
+        msg: "Digite o nome da nova categoria:",
+        input: true,
+        confirmText: "Criar",
+        onConfirm: async (nome) => {
+            if(nome) {
+                try {
+                    await pb.collection('categorias').create({ nome: nome, ativa: true });
+                    loadCategories();
+                } catch(e) { alert("Erro ao criar."); }
+            }
+        }
+    });
+}
+
 // --- MÁSCARA DE DINHEIRO ---
 function formatMoneyInput(input) {
     let value = input.value.replace(/\D/g, "");
@@ -40,7 +147,6 @@ function checkAuth() {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard-screen').classList.remove('hidden');
         
-        // Pega Nome ou Email do Usuário Logado
         const model = pb.authStore.model;
         const displayName = model.name ? model.name : (model.email ? model.email.split('@')[0] : 'Admin');
         
@@ -67,13 +173,6 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     }
 });
 
-function logout() {
-    if(confirm("Deseja realmente sair?")) {
-        pb.authStore.clear();
-        checkAuth();
-    }
-}
-
 // --- NAVEGAÇÃO ---
 function switchTab(tab) {
     document.getElementById('view-home').classList.add('hidden');
@@ -92,11 +191,11 @@ function switchTab(tab) {
     const activeBtn = document.getElementById(`nav-${tab}`);
     if(activeBtn) activeBtn.classList.add('active', 'text-brand-DEFAULT');
     
+    scrollToTop(); // Scroll para o topo
+
     if(tab === 'products') loadProducts();
     if(tab === 'categories') loadCategories();
     if(tab === 'home') loadSubscription();
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function loadDashboard() {
@@ -203,16 +302,6 @@ async function loadCategories() {
     } catch (err) { console.error(err); }
 }
 
-async function promptAddCategory() {
-    const nome = prompt("Digite o nome da nova categoria:");
-    if(nome && nome.trim()) {
-        try {
-            await pb.collection('categorias').create({ nome: nome.trim(), ativa: true });
-            loadCategories();
-        } catch(e) { alert("Erro ao criar categoria"); }
-    }
-}
-
 // --- DETALHES DA CATEGORIA ---
 async function openCategoryDetails(cat) {
     document.getElementById('view-categories').classList.add('hidden');
@@ -222,6 +311,8 @@ async function openCategoryDetails(cat) {
     document.getElementById('edit-cat-id').value = cat.id;
     
     document.getElementById('nav-categories').classList.remove('active', 'text-brand-DEFAULT');
+    
+    scrollToTop();
 
     const container = document.getElementById('cat-products-list');
     container.innerHTML = '<div class="loader mx-auto"></div>';
@@ -255,16 +346,21 @@ async function deleteCategorySafe() {
     const countText = document.getElementById('cat-product-count').innerText;
     
     if(!countText.startsWith("0")) {
-        alert("Não é possível excluir: Esta categoria possui produtos.");
+        showCustomModal({ title: "Atenção", msg: "Esta categoria possui produtos. Remova-os antes de excluir." });
         return;
     }
     
-    if(confirm("Tem certeza que deseja excluir esta categoria?")) {
-        try {
-            await pb.collection('categorias').delete(id);
-            switchTab('categories');
-        } catch(e) { alert("Erro ao excluir."); }
-    }
+    showCustomModal({
+        title: "Excluir Categoria",
+        msg: "Tem certeza que deseja apagar esta categoria?",
+        confirmText: "Excluir",
+        onConfirm: async () => {
+            try {
+                await pb.collection('categorias').delete(id);
+                switchTab('categories');
+            } catch(e) { alert("Erro ao excluir."); }
+        }
+    });
 }
 
 
@@ -458,7 +554,7 @@ async function saveProduct() {
         }
 
     } catch (err) {
-        alert("Erro: " + err.message);
+        showCustomModal({ title: "Erro", msg: err.message, confirmText: "Ok" });
     } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
@@ -469,18 +565,22 @@ async function deleteProductFromModal() {
     const id = document.getElementById('prod-id').value;
     if(!id) return;
 
-    if(confirm("Tem certeza que deseja apagar este produto permanentemente?")) {
-        try {
-            await pb.collection('produtos').delete(id);
-            closeProductModal();
-            
-            if(!document.getElementById('view-category-detail').classList.contains('hidden')) {
-                const catId = document.getElementById('edit-cat-id').value;
-                openCategoryDetails({id: catId, nome: document.getElementById('edit-cat-name').value}); 
-           } else {
-                loadProducts();
-           }
-
-        } catch(e) { alert("Erro ao apagar."); }
-    }
+    showCustomModal({
+        title: "Excluir Produto",
+        msg: "Tem certeza que deseja apagar este produto permanentemente?",
+        confirmText: "Excluir",
+        onConfirm: async () => {
+            try {
+                await pb.collection('produtos').delete(id);
+                closeProductModal();
+                
+                if(!document.getElementById('view-category-detail').classList.contains('hidden')) {
+                    const catId = document.getElementById('edit-cat-id').value;
+                    openCategoryDetails({id: catId, nome: document.getElementById('edit-cat-name').value}); 
+               } else {
+                    loadProducts();
+               }
+            } catch(e) { alert("Erro ao apagar."); }
+        }
+    });
 }

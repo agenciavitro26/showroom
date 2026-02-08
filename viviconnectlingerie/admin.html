@@ -39,27 +39,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
-    <style>
-        body { padding-bottom: 90px; }
-        .nav-item.active { color: #d946ef; }
-        .nav-item.active i { fill: #fde3fc; }
-        
-        .toggle-checkbox:checked { right: 0; border-color: #d946ef; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #d946ef; }
-        .toggle-checkbox:checked + .toggle-label:before { transform: translateX(100%); }
-
-        /* Força cor roxa escura nos botões de ação */
-        .btn-action-purple {
-            background-color: #86198f !important; /* brand-dark */
-            color: white !important;
-        }
-        .btn-action-purple:hover {
-            background-color: #701a75 !important; /* brand-deep */
-        }
-        .btn-action-purple:active {
-            transform: scale(0.95);
-        }
-    </style>
 </head>
 <body class="font-sans text-gray-800 bg-[#f9fafb] min-h-screen">
 
@@ -99,7 +78,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <span id="user-name-display" class="text-xs font-bold text-brand-deep uppercase tracking-wider"></span>
-                <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition-colors p-2 bg-gray-50 rounded-full">
+                <button onclick="requestLogout()" class="text-gray-400 hover:text-red-500 transition-colors p-2 bg-gray-50 rounded-full">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -151,7 +130,7 @@
                 </div>
 
                 <div class="bg-vitro-dark text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
-                    <img src="./assets/logo.png" class="absolute -right-6 -bottom-6 w-40 h-40 opacity-10 rotate-12 grayscale brightness-200 pointer-events-none">
+                    <img src="./assets/logo-vitro.png" onerror="this.style.display='none'" class="absolute -right-6 -bottom-6 w-40 h-40 opacity-20 rotate-12 grayscale pointer-events-none">
                     
                      <h3 class="font-bold text-lg mb-1 relative z-10">Suporte Agência Vitrô</h3>
                      <p class="text-gray-400 text-xs mb-6 max-w-[80%] relative z-10">Precisa de ajuda com o painel ou quer evoluir seu site? Fale conosco.</p>
@@ -198,7 +177,7 @@
             <div id="view-categories" class="hidden space-y-4">
                 <div class="flex justify-between items-center px-2">
                     <h2 class="font-serif font-bold text-2xl text-brand-dark">Categorias</h2>
-                    <button onclick="promptAddCategory()" class="btn-action-purple w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
+                    <button onclick="requestAddCategory()" class="btn-action-purple w-12 h-12 rounded-xl shadow-lg shadow-brand-light flex items-center justify-center">
                         <i data-lucide="plus" class="w-7 h-7"></i>
                     </button>
                 </div>
@@ -337,7 +316,12 @@
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1 flex items-center gap-2">
                             <i data-lucide="youtube" class="w-4 h-4 text-red-600"></i> Vídeo (Shorts/Youtube)
                         </label>
-                        <input type="url" id="prod-video" class="input-field text-sm" placeholder="Cole o link aqui...">
+                        <div class="input-wrapper">
+                            <input type="url" id="prod-video" class="input-field text-sm pr-10" placeholder="Cole o link aqui...">
+                            <button type="button" onclick="pasteFromClipboard('prod-video')" class="btn-paste" title="Colar Link">
+                                <i data-lucide="clipboard" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -350,6 +334,25 @@
             <button onclick="saveProduct()" id="btn-save" class="btn-primary flex-1 shadow-lg shadow-brand-light">
                 <span>Salvar Produto</span>
             </button>
+        </div>
+    </div>
+
+    <div id="custom-modal-overlay" class="fixed inset-0 z-[100] bg-black/60 hidden flex items-center justify-center p-4">
+        <div id="custom-modal-content" class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform scale-90 opacity-0 transition-all duration-200">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-brand-light rounded-full flex items-center justify-center mx-auto mb-4 text-brand-dark">
+                    <i data-lucide="info" id="modal-icon" class="w-8 h-8"></i>
+                </div>
+                <h3 id="modal-title" class="font-serif font-bold text-xl text-brand-deep mb-2">Título</h3>
+                <p id="modal-msg" class="text-gray-500 text-sm mb-4">Mensagem</p>
+                
+                <input type="text" id="modal-input" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand-DEFAULT mb-4 hidden bg-gray-50 text-center font-bold">
+                
+                <div class="flex gap-2">
+                    <button id="modal-cancel" class="flex-1 bg-gray-100 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors">Cancelar</button>
+                    <button id="modal-confirm" class="flex-1 bg-brand-dark text-white font-bold py-3 rounded-xl hover:bg-brand-deep transition-colors shadow-lg">Confirmar</button>
+                </div>
+            </div>
         </div>
     </div>
 
